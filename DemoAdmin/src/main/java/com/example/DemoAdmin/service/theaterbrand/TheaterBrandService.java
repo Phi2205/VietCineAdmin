@@ -29,16 +29,14 @@ public class TheaterBrandService implements ITheaterBrandService {
 
 
     @Override
-    public TheaterBrandResponse createTheaterBrand(TheaterBrandRequest request) throws IOException {
+    public TheaterBrandResponse createTheaterBrand(String theaterBrandName, MultipartFile logo) throws IOException {
         TheaterBrand theaterBrand = new TheaterBrand();
-        theaterBrand.setTheaterBrandName(request.getTheaterBrandName());
-        TheaterBrand savedTheaterBrand = theaterBrandReposiroty.save(theaterBrand);
-        System.out.println(request.getLogo());
-        MultipartFile logo = request.getLogo();
+        theaterBrand.setTheaterBrandName(theaterBrandName);
+//        TheaterBrand savedTheaterBrand = theaterBrandReposiroty.save(theaterBrand);
         if (logo != null && !logo.isEmpty()) {
             Map uploadResult = cloudinary.uploader().upload(logo.getBytes(),
                     ObjectUtils.asMap(
-                            "public_id", "logo_theater_brand" + savedTheaterBrand.getTheaterBrandId(),
+                            "public_id", "logo_theater_brand_" + theaterBrandName,
                             "folder", "vietcine",
                             "overwrite", true,
                             "resource_type", "image"
@@ -48,7 +46,7 @@ public class TheaterBrandService implements ITheaterBrandService {
         }
         System.out.println(theaterBrand);
         // Save the updated user
-        theaterBrand = theaterBrandReposiroty.save(theaterBrand);
+        TheaterBrand savedTheaterBrand = theaterBrandReposiroty.save(theaterBrand);
         return theaterBrandMapper.toTheaterBrandResponse(savedTheaterBrand);
     }
 

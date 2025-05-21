@@ -8,6 +8,7 @@ import com.example.DemoAdmin.service.theaterbrand.TheaterBrandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,10 +18,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TheaterBrandController {
     private final TheaterBrandService theaterBrandService;
-    @PostMapping
-    public ResponseEntity<ApiResponse<TheaterBrandResponse>> creatTheaterBrand(@ModelAttribute TheaterBrandRequest request) throws IOException {
-        System.out.println(request.getLogo());
-        TheaterBrandResponse response = theaterBrandService.createTheaterBrand(request);
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<TheaterBrandResponse>> creatTheaterBrand(@RequestParam("theaterBrandName") String theaterBrandName,
+                                                                               @RequestParam("logo") MultipartFile logo) throws IOException {
+
+        TheaterBrandResponse response = theaterBrandService.createTheaterBrand(theaterBrandName, logo);
         return ResponseEntity.ok(new ApiResponse<>("Theater Brand create successfully", response));
     }
     @GetMapping("/{theaterBrandId}")
