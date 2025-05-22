@@ -314,6 +314,7 @@ const TheaterList = () => {
   const [open, setOpen] = useState(false);
   const [openUpdateTheaterBrand, setOpenUpdateTheaterBrand] = useState(false);
   const [editingTheaterBrand, setEditingTheaterBrand] = useState(null);
+  const [idBrand, setIdBrand] = useState(null);
 
   useEffect(() => {
     fetchTheaters();
@@ -360,6 +361,22 @@ const TheaterList = () => {
       })
       .finally(() => setLoading(false));
   };
+
+  const LoadingTheaterByTheaterBrand = (theaterBrandId) => {
+    console.log("đang load theater brand ", theaterBrandId);
+    setIdBrand(theaterBrandId);
+    setLoading(true);
+    axios
+      .get(`http://localhost:8080/api/admin/theaters/theaterbrands/${theaterBrandId}` )
+      .then((response) => {
+        setTheaters(response.data);
+        setFilteredTheaters(response.data);
+      })
+      .catch((error) => {
+        toast.error("Lỗi khi tải dữ liệu rạp chiếu phim");
+      })
+      .finally(() => setLoading(false));
+  }
 
   const updateTheaterBrand = () => {
     if (openUpdateTheaterBrand) {
@@ -583,6 +600,11 @@ const TheaterList = () => {
             {theaterBrands.map((brand) => (
               <Card
                 key={brand.id}
+                onClick={() => {
+                  if (!openUpdateTheaterBrand) {
+                    LoadingTheaterByTheaterBrand(brand.id);
+                  }
+                }}
                 sx={{
                   width: 120,
                   height: 120,
@@ -591,6 +613,7 @@ const TheaterList = () => {
                   boxShadow: "0 8px 20px rgba(25, 118, 210, 0.3)",
                   cursor: "pointer",
                   position: "relative",
+                  border: (brand.id === idBrand) ? "5px solid rgb(206, 26, 26)" : "none",
                   //   pointerEvents: openUpdateTheaterBrand ? "none" : "auto",
                   transition: "transform 0.3s ease, box-shadow 0.3s ease",
                   "&:hover": openUpdateTheaterBrand
@@ -600,7 +623,7 @@ const TheaterList = () => {
                         boxShadow: "0 12px 30px rgba(25, 118, 210, 0.6)",
                       },
                 }}
-              >
+                >
                 {/* Nút update và delete */}
                 <Box
                   sx={{

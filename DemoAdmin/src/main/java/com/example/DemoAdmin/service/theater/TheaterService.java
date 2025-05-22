@@ -5,10 +5,7 @@ import com.example.DemoAdmin.dto.request.ShowtimeRequest;
 import com.example.DemoAdmin.dto.request.TheaterRequest;
 import com.example.DemoAdmin.dto.response.ShowtimeResponse;
 import com.example.DemoAdmin.dto.response.TheaterResponse;
-import com.example.DemoAdmin.entity.Movie;
-import com.example.DemoAdmin.entity.Screen;
-import com.example.DemoAdmin.entity.Showtime;
-import com.example.DemoAdmin.entity.Theater;
+import com.example.DemoAdmin.entity.*;
 import com.example.DemoAdmin.mapper.IShowtimeMapper;
 import com.example.DemoAdmin.mapper.ITheaterMapper;
 import com.example.DemoAdmin.repository.IMovieRepository;
@@ -87,6 +84,12 @@ public class TheaterService implements ITheaterService{
         Theater theater = theaterRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Theater not found with id: " + id));
         theaterRepository.delete(theater);
+    }
+
+    @Override
+    public List<TheaterResponse> getAllTheatersByTheaterBrandId(Integer theaterBrandId) {
+        List<Theater> theaterBrands = theaterRepository.findByTheaterBrand_TheaterBrandId(theaterBrandId);
+        return theaterMapper.toTheaterResponses(theaterBrands);
     }
 
 

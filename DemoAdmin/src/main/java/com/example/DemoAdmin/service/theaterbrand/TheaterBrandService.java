@@ -2,11 +2,10 @@ package com.example.DemoAdmin.service.theaterbrand;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.example.DemoAdmin.dto.request.TheaterBrandRequest;
 import com.example.DemoAdmin.dto.response.TheaterBrandResponse;
 import com.example.DemoAdmin.entity.TheaterBrand;
 import com.example.DemoAdmin.mapper.ITheaterBrandMapper;
-import com.example.DemoAdmin.repository.ITheaterBrandReposiroty;
+import com.example.DemoAdmin.repository.ITheaterBrandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TheaterBrandService implements ITheaterBrandService {
     @Autowired
-    private final ITheaterBrandReposiroty theaterBrandReposiroty;
+    private final ITheaterBrandRepository theaterBrandRepository;
     @Autowired
     private final ITheaterBrandMapper theaterBrandMapper;
     @Autowired
@@ -44,13 +43,13 @@ public class TheaterBrandService implements ITheaterBrandService {
             String logoUrl = (String) uploadResult.get("secure_url");
             theaterBrand.setLogo(logoUrl);
         }
-        TheaterBrand savedTheaterBrand = theaterBrandReposiroty.save(theaterBrand);
+        TheaterBrand savedTheaterBrand = theaterBrandRepository.save(theaterBrand);
         return theaterBrandMapper.toTheaterBrandResponse(savedTheaterBrand);
     }
 
     @Override
     public TheaterBrandResponse updateTheaterBrand(String theaterBrandName, MultipartFile logo, Integer id) throws IOException {
-        TheaterBrand theaterBrand = theaterBrandReposiroty.findById(id)
+        TheaterBrand theaterBrand = theaterBrandRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException("Theater Brand not exist"));
         theaterBrand.setTheaterBrandName(theaterBrandName);
         if (logo != null && !logo.isEmpty()) {
@@ -64,7 +63,7 @@ public class TheaterBrandService implements ITheaterBrandService {
             String logoUrl = (String) uploadResult.get("secure_url");
             theaterBrand.setLogo(logoUrl);
         }
-        TheaterBrand updateTheaterBrand = theaterBrandReposiroty.save(theaterBrand);
+        TheaterBrand updateTheaterBrand = theaterBrandRepository.save(theaterBrand);
         return theaterBrandMapper.toTheaterBrandResponse(updateTheaterBrand);
     }
 
@@ -73,21 +72,21 @@ public class TheaterBrandService implements ITheaterBrandService {
 
     @Override
     public void deleteTheaterBrand(Integer id) {
-        TheaterBrand theaterBrand = theaterBrandReposiroty.findById(id)
+        TheaterBrand theaterBrand = theaterBrandRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException("Theater Brand not exist"));
-        theaterBrandReposiroty.delete(theaterBrand);
+        theaterBrandRepository.delete(theaterBrand);
     }
 
     @Override
     public TheaterBrandResponse getTheaterBrandById(Integer id) {
-        TheaterBrand theaterBrand = theaterBrandReposiroty.findById(id)
+        TheaterBrand theaterBrand = theaterBrandRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException("Theater Brand not exist"));
         return theaterBrandMapper.toTheaterBrandResponse(theaterBrand);
     }
 
     @Override
     public List<TheaterBrandResponse> getAllTheaterBand() {
-        List<TheaterBrand> theaterBrands = theaterBrandReposiroty.findAll();
+        List<TheaterBrand> theaterBrands = theaterBrandRepository.findAll();
 
         List<TheaterBrandResponse> responses = theaterBrands.stream()
                 .map(tb -> {

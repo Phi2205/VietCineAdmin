@@ -8,6 +8,8 @@ import com.example.DemoAdmin.entity.Theater;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ITheaterMapper {
     @Mapping(target = "id", source = "id")
@@ -17,4 +19,5 @@ public interface ITheaterMapper {
     @Mapping(target = "totalScreens", source = "totalScreens")
     TheaterResponse toTheaterResponse(Theater theater);
     Theater toTheater(TheaterRequest request);
+    List<TheaterResponse> toTheaterResponses(List<Theater> theaterList);
 }

@@ -11,4 +11,5 @@ public interface ITheaterService {
     TheaterResponse getTheaterById(Integer id);
     List<TheaterResponse> getAllTheaters();
     void deleteTheater(Integer id);
+    List<TheaterResponse> getAllTheatersByTheaterBrandId(Integer theaterBrandId);
 }

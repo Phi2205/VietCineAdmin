@@ -62,4 +62,9 @@ public class TheaterController {
         TheaterResponse response = theaterService.getTheaterById(id);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("theaterbrands/{theaterBrandId}")
+    public ResponseEntity<List<TheaterResponse>> getAllTheaterByTheaterBrandId(@PathVariable Integer theaterBrandId){
+        List<TheaterResponse> theaterResponses = theaterService.getAllTheatersByTheaterBrandId(theaterBrandId);
+        return ResponseEntity.ok(theaterResponses);
+    }
 }

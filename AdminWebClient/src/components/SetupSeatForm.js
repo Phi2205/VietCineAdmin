@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -19,16 +19,16 @@ import {
   InputBase,
   TextField,
   ToggleButton,
-  ToggleButtonGroup
-} from '@mui/material';
-import FormHelperText from '@mui/material/FormHelperText';
-import { Refresh } from '@mui/icons-material';
-import { toast } from 'react-toastify';
-import { Save, ArrowBack, Add, ContentCopy } from '@mui/icons-material';
-import { useParams, useNavigate } from 'react-router-dom';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import axios from 'axios';
+  ToggleButtonGroup,
+} from "@mui/material";
+import FormHelperText from "@mui/material/FormHelperText";
+import { Refresh } from "@mui/icons-material";
+import { toast } from "react-toastify";
+import { Save, ArrowBack, Add, ContentCopy } from "@mui/icons-material";
+import { useParams, useNavigate } from "react-router-dom";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import axios from "axios";
 
 const SeatSetupForm = () => {
   const { id: screenId } = useParams();
@@ -39,13 +39,13 @@ const SeatSetupForm = () => {
   const [newCols, setNewCols] = useState(5);
   const [newRows, setNewRows] = useState(8);
   const [seats, setSeats] = useState([]);
-  const [selectedSeatType, setSelectedSeatType] = useState('available');
+  const [selectedSeatType, setSelectedSeatType] = useState("available");
   const [initialSeats, setInitialSeats] = useState([]);
   const [showtimeList, setShowtimeList] = useState([]);
 
   // For template selection
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState('default');
+  const [selectedTemplate, setSelectedTemplate] = useState("default");
 
   const [screen, setScreen] = useState({
     id: 1,
@@ -57,13 +57,13 @@ const SeatSetupForm = () => {
       address: "...",
       city: "",
       totalScreens: 0,
-    }
+    },
   });
   // For zone selection
   const [zoneSelectionMode, setZoneSelectionMode] = useState(false);
   const [startCell, setStartCell] = useState(null);
   const [endCell, setEndCell] = useState(null);
-  const [selectionType, setSelectionType] = useState('select'); // 'select' or 'paint'
+  const [selectionType, setSelectionType] = useState("select"); // 'select' or 'paint'
   const [seatTypes, setSeatTypes] = useState({
     available: { price: 0, enabled: false },
     vip: { price: 0, enabled: false },
@@ -75,14 +75,14 @@ const SeatSetupForm = () => {
     couple: { price: 0, enabled: false },
   });
   // const [form, setForm] = useState({available: 0, vip: '', couple: ''});
-  const [errors, setErrors] = useState({ available: '', vip: '', couple: '' });
+  const [errors, setErrors] = useState({ available: "", vip: "", couple: "" });
 
   const seatColors = {
-    available: '#4caf50',
-    vip: '#ff9800',
-    couple: '#ab47bc',
-    supcouple: '#ab47bc',
-    unavailable: '#e0e0e0',
+    available: "#4caf50",
+    vip: "#ff9800",
+    couple: "#ab47bc",
+    supcouple: "#ab47bc",
+    unavailable: "#e0e0e0",
   };
 
   const seatTypeMap = {
@@ -93,133 +93,143 @@ const SeatSetupForm = () => {
     unavailable: 4,
   };
   const updateSeatType = (type, key, value) => {
-    setSeatTypes(prev => ({
+    setSeatTypes((prev) => ({
       ...prev,
       [type]: {
         ...prev[type],
         [key]: value,
-      }
+      },
     }));
   };
 
+  // Hàm setNewRowAndCol chỉ update cols trước, rows update trong useEffect
   const setNewRowAndCol = (newRow, newCol) => {
     if (newRow > 26) {
       newRow = 26;
-      setNewRows(26);
+      setNewRows(26); // Cập nhật rows luôn nếu cần
     }
-    updateCols(newCol);
-    updateRows(newRows);
-  }
+    updateCols(newCol); // Cập nhật cols trước
+  };
 
+  // useEffect theo dõi cols thay đổi, rồi cập nhật rows
+  useEffect(() => {
+    // Khi cols thay đổi, cập nhật rows
+    updateRows(newRows); // hoặc logic khác tùy trường hợp
+  }, [cols]);
 
   const handleChange = (e) => {
     // setForm({...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
-  }
+    setErrors({ ...errors, [e.target.name]: "" });
+  };
 
   const validate = () => {
     const newError = {};
-    if (seatTypes['available'].price <= 0 && seatTypes['available'].enabled) {
-      newError['available'] = 'Vui lòng nhập giá ghế thường';
+    if (seatTypes["available"].price <= 0 && seatTypes["available"].enabled) {
+      newError["available"] = "Vui lòng nhập giá ghế thường";
     }
-    if (seatTypes['vip'].price <= 0 && seatTypes['vip'].enabled) {
-      newError['vip'] = 'Vui lòng nhập giá ghế VIP';
+    if (seatTypes["vip"].price <= 0 && seatTypes["vip"].enabled) {
+      newError["vip"] = "Vui lòng nhập giá ghế VIP";
     }
-    if (seatTypes['couple'].price <= 0 && seatTypes['couple'].enabled) {
-      newError['couple'] = 'Vui lòng nhập giá ghế đôi';
+    if (seatTypes["couple"].price <= 0 && seatTypes["couple"].enabled) {
+      newError["couple"] = "Vui lòng nhập giá ghế đôi";
     }
     return newError;
-  }
+  };
 
   // Predefined templates
   const templates = {
     default: {
       name: "Default Empty",
-      generate: (rowCount, colCount) => Array.from({ length: rowCount }, () =>
-        Array.from({ length: colCount }, () => 'available')
-      )
+      generate: (rowCount, colCount) =>
+        Array.from({ length: rowCount }, () =>
+          Array.from({ length: colCount }, () => "available")
+        ),
     },
     standard: {
       name: "Standard Theater",
       generate: (rowCount, colCount) => {
         const template = Array.from({ length: rowCount }, () =>
-          Array.from({ length: colCount }, () => 'available')
+          Array.from({ length: colCount }, () => "available")
         );
 
         // VIP section in the middle
         const vipStartRow = Math.floor(rowCount / 3);
-        const vipEndRow = Math.floor(2 * rowCount / 3);
+        const vipEndRow = Math.floor((2 * rowCount) / 3);
         for (let i = vipStartRow; i <= vipEndRow; i++) {
           for (let j = 1; j < colCount - 1; j++) {
-            template[i][j] = 'vip';
+            template[i][j] = "vip";
           }
         }
 
         return template;
-      }
+      },
     },
     premium: {
       name: "Premium Theater",
       generate: (rowCount, colCount) => {
         const template = Array.from({ length: rowCount }, () =>
-          Array.from({ length: colCount }, () => 'available')
+          Array.from({ length: colCount }, () => "available")
         );
 
         // VIP section at the back
         const vipStartRow = Math.floor(rowCount / 2);
         for (let i = vipStartRow; i < rowCount; i++) {
           for (let j = 0; j < colCount; j++) {
-            template[i][j] = 'vip';
+            template[i][j] = "vip";
           }
         }
 
         // Couple seats at the back corners
         if (rowCount > 2 && colCount > 3) {
-          template[rowCount - 1][0] = 'couple';
-          template[rowCount - 1][1] = 'supcouple';
-          template[rowCount - 1][colCount - 2] = 'couple';
-          template[rowCount - 1][colCount - 1] = 'supcouple';
+          template[rowCount - 1][0] = "couple";
+          template[rowCount - 1][1] = "supcouple";
+          template[rowCount - 1][colCount - 2] = "couple";
+          template[rowCount - 1][colCount - 1] = "supcouple";
         }
 
         return template;
-      }
+      },
     },
     intimate: {
       name: "Intimate Theater",
       generate: (rowCount, colCount) => {
         const template = Array.from({ length: rowCount }, () =>
-          Array.from({ length: colCount }, () => 'available')
+          Array.from({ length: colCount }, () => "available")
         );
 
         // Center aisle
         const centerCol = Math.floor(colCount / 2);
         for (let i = 0; i < rowCount; i++) {
-          template[i][centerCol] = 'unavailable';
+          template[i][centerCol] = "unavailable";
         }
 
         // Couple seats at the back
         const backRow = rowCount - 1;
         for (let j = 0; j < colCount - 1; j += 2) {
           if (j !== centerCol && j + 1 !== centerCol) {
-            template[backRow][j] = 'couple';
-            template[backRow][j + 1] = 'supcouple';
+            template[backRow][j] = "couple";
+            template[backRow][j + 1] = "supcouple";
           }
         }
 
         return template;
-      }
-    }
+      },
+    },
   };
 
   const isSeatsChanged = () => {
     const seatList = getSeatList();
-    console.log('Initial Seats:', initialSeats);
-    console.log('Current Seats:', seatList);
+    console.log("Initial Seats:", initialSeats);
+    console.log("Current Seats:", seatList);
     if (seatTypes !== seatTypesTemp) {
       return true;
     }
     if (initialSeats.length !== seatList.length) {
-      console.log('Number of seats changed:', initialSeats.length, seatList.length);
+      console.log(
+        "Number of seats changed:",
+        initialSeats.length,
+        seatList.length
+      );
       return true;
     }
     for (let i = 0; i < initialSeats.length; i++) {
@@ -228,13 +238,12 @@ const SeatSetupForm = () => {
         initialSeats[i].column !== seatList[i].column ||
         initialSeats[i].seatTypeId !== seatList[i].seatTypeId
       ) {
-        console.log('Seat changed:', initialSeats[i], seatList[i]);
+        console.log("Seat changed:", initialSeats[i], seatList[i]);
         return true;
       }
     }
     return false;
   };
-
 
   // useEffect(() => {
   //   const fetchSeatPrices = async () => {
@@ -246,7 +255,7 @@ const SeatSetupForm = () => {
 
   //       // setSeatTypesTemp(seatPriceData.seatTypes);
   //       seatTypes['available'].price = seatPriceData.seatTypes.available.price;
-  //       seatTypes['vip'].price = seatPriceData.seatTypes.vip.price;     
+  //       seatTypes['vip'].price = seatPriceData.seatTypes.vip.price;
   //       seatTypes['couple'].price = seatPriceData.seatTypes.couple.price;
 
   //       console.log("seatTypes từ API:", seatPriceData.seatTypes);
@@ -264,51 +273,62 @@ const SeatSetupForm = () => {
     const fetchSeats = async () => {
       try {
         try {
-          axios.get(`http://localhost:8080/api/admin/screens/${screenId}`)
-            .then(res => {
+          axios
+            .get(`http://localhost:8080/api/admin/screens/${screenId}`)
+            .then((res) => {
               setScreen(res.data);
             })
-            .catch(err => toast.error('Lỗi không tải được thông tin phòng chiếu!'));
-          const response = await fetch(`http://localhost:8080/api/admin/seatprices/screen/${screenId}`);
-          if (!response.ok) throw new Error('Lỗi khi tải giá ghế');
+            .catch((err) =>
+              toast.error("Lỗi không tải được thông tin phòng chiếu!")
+            );
+          const response = await fetch(
+            `http://localhost:8080/api/admin/seatprices/screen/${screenId}`
+          );
+          if (!response.ok) throw new Error("Lỗi khi tải giá ghế");
 
           const seatPriceData = await response.json();
 
           setSeatTypesTemp(seatPriceData.seatTypes);
-          seatTypes['available'].price = seatPriceData.seatTypes.available.price;
-          seatTypes['vip'].price = seatPriceData.seatTypes.vip.price;
-          seatTypes['couple'].price = seatPriceData.seatTypes.couple.price;
+          seatTypes["available"].price =
+            seatPriceData.seatTypes.available.price;
+          seatTypes["vip"].price = seatPriceData.seatTypes.vip.price;
+          seatTypes["couple"].price = seatPriceData.seatTypes.couple.price;
 
           console.log("seatTypes từ API:", seatPriceData.seatTypes);
-
         } catch (error) {
-          console.error('Lỗi khi tải giá ghế:', error);
-          alert('Không thể tải giá ghế. Vui lòng thử lại sau.');
+          console.error("Lỗi khi tải giá ghế:", error);
+          alert("Không thể tải giá ghế. Vui lòng thử lại sau.");
         }
-        const response = await fetch(`http://localhost:8080/api/admin/screens/${screenId}/seats`);
-        if (!response.ok) throw new Error('Lỗi khi tải danh sách ghế');
+        const response = await fetch(
+          `http://localhost:8080/api/admin/screens/${screenId}/seats`
+        );
+        if (!response.ok) throw new Error("Lỗi khi tải danh sách ghế");
         const data = await response.json();
 
-        const maxRow = Math.max(...data.map((seat) => seat.row.charCodeAt(0) - 65 + 1));
+        const maxRow = Math.max(
+          ...data.map((seat) => seat.row.charCodeAt(0) - 65 + 1)
+        );
         let maxCol = Math.max(...data.map((seat) => seat.column)); // chú ý để `let`, không phải `const`
 
         // Khởi tạo newSeats ban đầu
         const newSeats = Array.from({ length: maxRow }, () =>
-          Array.from({ length: maxCol }, () => 'unavailable')
+          Array.from({ length: maxCol }, () => "unavailable")
         );
 
         // Map dữ liệu từ API vào newSeats
         data.forEach(({ row, column, seatTypeId }) => {
           const rowIndex = row.charCodeAt(0) - 65;
           const colIndex = column - 1;
-          const type = Object.keys(seatTypeMap).find((key) => seatTypeMap[key] === seatTypeId);
+          const type = Object.keys(seatTypeMap).find(
+            (key) => seatTypeMap[key] === seatTypeId
+          );
           if (type) newSeats[rowIndex][colIndex] = type;
         });
 
         // Check nếu cột cuối có ghế couple -> thêm 1 cột vào tất cả hàng
         let needAddCol = false;
         for (let i = 0; i < maxRow; i++) {
-          if (newSeats[i][maxCol - 1] === 'couple') {
+          if (newSeats[i][maxCol - 1] === "couple") {
             needAddCol = true;
             break;
           }
@@ -316,26 +336,30 @@ const SeatSetupForm = () => {
         if (needAddCol) {
           maxCol += 1; // update maxCol
           for (let i = 0; i < maxRow; i++) {
-            newSeats[i].push('unavailable'); // thêm ghế unavailable vào cuối mỗi hàng
+            newSeats[i].push("unavailable"); // thêm ghế unavailable vào cuối mỗi hàng
           }
         }
 
         // Tiếp theo: gán supcouple cho ghế bên cạnh ghế couple
         for (let i = 0; i < maxRow; i++) {
           for (let j = 0; j < maxCol; j++) {
-            if (newSeats[i][j] === 'couple') {
-              newSeats[i][j + 1] = 'supcouple';
+            if (newSeats[i][j] === "couple") {
+              newSeats[i][j + 1] = "supcouple";
             }
           }
         }
 
         // Clean nếu cần
         let cleanedSeats = [...newSeats];
-        const isFirstRowUnavailable = cleanedSeats[0]?.every(cell => cell === 'unavailable');
+        const isFirstRowUnavailable = cleanedSeats[0]?.every(
+          (cell) => cell === "unavailable"
+        );
         if (isFirstRowUnavailable) cleanedSeats = cleanedSeats.slice(1);
-        const isFirstColUnavailable = cleanedSeats.every(row => row[0] === 'unavailable');
-        if (isFirstColUnavailable) cleanedSeats = cleanedSeats.map(row => row.slice(1));
-
+        const isFirstColUnavailable = cleanedSeats.every(
+          (row) => row[0] === "unavailable"
+        );
+        if (isFirstColUnavailable)
+          cleanedSeats = cleanedSeats.map((row) => row.slice(1));
 
         // const responseSeatPrice = await fetch(`http://localhost:8080/api/admin/seatprices/screen/${screenId}`);
         // if (!responseSeatPrice.ok) throw new Error('Lỗi khi tải giá ghế');
@@ -350,12 +374,10 @@ const SeatSetupForm = () => {
         setInitialSeats(data);
 
         setPrice(newSeats);
-
-
       } catch (error) {
-        console.error('Lỗi tải dữ liệu ghế:', error);
+        console.error("Lỗi tải dữ liệu ghế:", error);
         const fallback = Array.from({ length: 5 }, () =>
-          Array.from({ length: 8 }, () => 'available')
+          Array.from({ length: 8 }, () => "available")
         );
 
         setSeats(fallback);
@@ -364,30 +386,30 @@ const SeatSetupForm = () => {
 
     const fetchShowtimes = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/admin/showtimes`);
-        if (!response.ok) throw new Error('Lỗi khi tải danh sách suất chiếu');
+        const response = await fetch(
+          `http://localhost:8080/api/admin/showtimes`
+        );
+        if (!response.ok) throw new Error("Lỗi khi tải danh sách suất chiếu");
         const data = await response.json();
         setShowtimeList(data);
-        console.log('showtimeList 1:', showtimeList);
+        console.log("showtimeList 1:", showtimeList);
       } catch (error) {
-        console.error('Lỗi tải danh sách showtime:', error);
+        console.error("Lỗi tải danh sách showtime:", error);
       }
     };
 
     fetchSeats();
     fetchShowtimes();
-
   }, [screenId]);
-
 
   const updateRows = (newRowCount) => {
     if (newRowCount > 26) newRowCount = 26; // Không cho phép số hàng nhỏ hơn 1
     setRows(newRowCount);
-    
+
     setSeats((prevSeats) => {
       const updated = [...prevSeats];
       while (updated.length < newRowCount) {
-        updated.push(Array.from({ length: cols }, () => 'available'));
+        updated.push(Array.from({ length: cols }, () => "available"));
       }
       if (updated.length > newRowCount) {
         updated.splice(newRowCount);
@@ -402,13 +424,13 @@ const SeatSetupForm = () => {
       prevSeats.map((row) => {
         const newRow = [...row];
         while (newRow.length < newColCount) {
-          newRow.push('available');
+          newRow.push("available");
         }
         if (newRow.length > newColCount) {
           newRow.splice(newColCount);
         }
-        if (newRow[newColCount - 1] === 'couple') {
-          newRow[newColCount - 1] = 'available';
+        if (newRow[newColCount - 1] === "couple") {
+          newRow[newColCount - 1] = "available";
         }
 
         return newRow;
@@ -421,26 +443,25 @@ const SeatSetupForm = () => {
   };
 
   const setPrice = (seatE) => {
-    console.log('SeatE:', seatE);
-    seatTypes['available'].enabled = false;
-    seatTypes['vip'].enabled = false;
-    seatTypes['couple'].enabled = false;
+    console.log("SeatE:", seatE);
+    seatTypes["available"].enabled = false;
+    seatTypes["vip"].enabled = false;
+    seatTypes["couple"].enabled = false;
     for (let i = 0; i < seatE.length; i++) {
       for (let j = 0; j < seatE[i].length; j++) {
-        if (seatE[i][j] === 'couple') {
+        if (seatE[i][j] === "couple") {
           updateSeatType("couple", "enabled", true);
-        } else if (seatE[i][j] === 'vip') {
+        } else if (seatE[i][j] === "vip") {
           updateSeatType("vip", "enabled", true);
-
-        } else if (seatE[i][j] === 'available') {
+        } else if (seatE[i][j] === "available") {
           updateSeatType("available", "enabled", true);
         }
-        console.log('seatTypes:', seatE[i][j]);
+        console.log("seatTypes:", seatE[i][j]);
       }
     }
-    console.log('reload');
-    console.log('seatTypes:', seatTypes);
-  }
+    console.log("reload");
+    console.log("seatTypes:", seatTypes);
+  };
 
   const handleSeatClick = (rowIndex, colIndex) => {
     if (zoneSelectionMode) {
@@ -459,23 +480,23 @@ const SeatSetupForm = () => {
       // Regular single seat selection mode
       const newSeats = [...seats.map((r) => [...r])];
 
-      if (selectedSeatType === 'couple') {
+      if (selectedSeatType === "couple") {
         if (
           colIndex < cols - 1 &&
-          newSeats[rowIndex][colIndex + 1] !== 'supcouple' &&
-          newSeats[rowIndex][colIndex + 1] !== 'couple' &&
-          newSeats[rowIndex][colIndex] !== 'supcouple'
+          newSeats[rowIndex][colIndex + 1] !== "supcouple" &&
+          newSeats[rowIndex][colIndex + 1] !== "couple" &&
+          newSeats[rowIndex][colIndex] !== "supcouple"
         ) {
-          newSeats[rowIndex][colIndex] = 'couple';
-          newSeats[rowIndex][colIndex + 1] = 'supcouple';
+          newSeats[rowIndex][colIndex] = "couple";
+          newSeats[rowIndex][colIndex + 1] = "supcouple";
         } else {
-          alert('Ghế đôi phải chọn 2 ghế trống liền kề!');
+          alert("Ghế đôi phải chọn 2 ghế trống liền kề!");
         }
       } else {
-        if (newSeats[rowIndex][colIndex] === 'couple') {
+        if (newSeats[rowIndex][colIndex] === "couple") {
           newSeats[rowIndex][colIndex] = selectedSeatType;
           newSeats[rowIndex][colIndex + 1] = selectedSeatType;
-        } else if (newSeats[rowIndex][colIndex] === 'supcouple') {
+        } else if (newSeats[rowIndex][colIndex] === "supcouple") {
           newSeats[rowIndex][colIndex] = selectedSeatType;
           newSeats[rowIndex][colIndex - 1] = selectedSeatType;
         } else {
@@ -487,7 +508,7 @@ const SeatSetupForm = () => {
       setPrice(newSeats);
     }
 
-    console.log('seatTypes:', seatTypes);
+    console.log("seatTypes:", seatTypes);
   };
 
   // Apply the selected seat type to a zone defined by start and end points
@@ -502,25 +523,27 @@ const SeatSetupForm = () => {
     // Apply the selected seat type to all seats in the zone
     for (let i = minRow; i <= maxRow; i++) {
       for (let j = minCol; j <= maxCol; j++) {
-        if (selectedSeatType === 'couple') {
+        if (selectedSeatType === "couple") {
           // For couple seats, we need to handle them specially
-          if (j < cols - 1 &&
+          if (
+            j < cols - 1 &&
             // j % 2 === 0 && // Only start couple seats at even column indexes
-            newSeats[i][j] !== 'supcouple' &&
-            newSeats[i][j + 1] !== 'couple') {
-            newSeats[i][j] = 'couple';
-            newSeats[i][j + 1] = 'supcouple';
+            newSeats[i][j] !== "supcouple" &&
+            newSeats[i][j + 1] !== "couple"
+          ) {
+            newSeats[i][j] = "couple";
+            newSeats[i][j + 1] = "supcouple";
           }
         } else {
           // For other seat types
-          if (newSeats[i][j] === 'couple') {
+          if (newSeats[i][j] === "couple") {
             newSeats[i][j] = selectedSeatType;
-            if (j < cols - 1 && newSeats[i][j + 1] === 'supcouple') {
+            if (j < cols - 1 && newSeats[i][j + 1] === "supcouple") {
               newSeats[i][j + 1] = selectedSeatType;
             }
-          } else if (newSeats[i][j] === 'supcouple') {
+          } else if (newSeats[i][j] === "supcouple") {
             newSeats[i][j] = selectedSeatType;
-            if (j > 0 && newSeats[i][j - 1] === 'couple') {
+            if (j > 0 && newSeats[i][j - 1] === "couple") {
               newSeats[i][j - 1] = selectedSeatType;
             }
           } else {
@@ -569,55 +592,61 @@ const SeatSetupForm = () => {
   const handleSubmit = async (e) => {
     for (let i = 0; i < showtimeList.length; i++) {
       if (showtimeList[i].screenId == screenId) {
-        alert('Không thể thay đổi ghế khi có suất chiếu đã được tạo!');
+        alert("Không thể thay đổi ghế khi có suất chiếu đã được tạo!");
         return;
       }
     }
     if (!isSeatsChanged()) {
-      alert('Không có thay đổi, không cần lưu.');
-      navigate('/screens');
+      alert("Không có thay đổi, không cần lưu.");
+      navigate("/screens");
       return;
     }
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      alert('Vui lòng nhập giá ghế!');
+      alert("Vui lòng nhập giá ghế!");
       return;
     }
-    if (window.confirm('Bạn có chắc muốn lưu cấu hình ghế này không?')) {
+    if (window.confirm("Bạn có chắc muốn lưu cấu hình ghế này không?")) {
       const seatList = getSeatList(); // seatList: danh sách các ghế
       const payload = {
         rows,
         cols,
-        listSeats: seatList
+        listSeats: seatList,
       };
-      console.log('Payload:', payload); // Kiểm tra payload trước khi gửi
+      console.log("Payload:", payload); // Kiểm tra payload trước khi gửi
       try {
-        const response = await fetch(`http://localhost:8080/api/admin/screens/${screenId}/setupSeats`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload), // Gửi payload đầy đủ
-        });
+        const response = await fetch(
+          `http://localhost:8080/api/admin/screens/${screenId}/setupSeats`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload), // Gửi payload đầy đủ
+          }
+        );
 
-        if (!response.ok) throw new Error('Lưu ghế thất bại');
-        const seatTypeRes = await fetch(`http://localhost:8080/api/admin/seatprices/screen/${screenId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ seatTypes }),
-        });
-        console.log('seatType:', seatTypes);
-        if (!seatTypeRes.ok) throw new Error('Lưu loại ghế thất bại');
+        if (!response.ok) throw new Error("Lưu ghế thất bại");
+        const seatTypeRes = await fetch(
+          `http://localhost:8080/api/admin/seatprices/screen/${screenId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ seatTypes }),
+          }
+        );
+        console.log("seatType:", seatTypes);
+        if (!seatTypeRes.ok) throw new Error("Lưu loại ghế thất bại");
 
-        alert('Lưu cấu hình và loại ghế thành công!');
-        navigate('/screens');
+        alert("Lưu cấu hình và loại ghế thành công!");
+        navigate("/screens");
       } catch (error) {
-        console.error('Error submitting seats:', error);
-        alert('Có lỗi xảy ra khi lưu ghế!');
+        console.error("Error submitting seats:", error);
+        alert("Có lỗi xảy ra khi lưu ghế!");
       }
     }
   };
@@ -643,7 +672,7 @@ const SeatSetupForm = () => {
 
   // Toggle zone selection mode
   const toggleZoneSelectionMode = () => {
-    setZoneSelectionMode(prevMode => !prevMode);
+    setZoneSelectionMode((prevMode) => !prevMode);
     // Reset selection points when toggling
     setStartCell(null);
     setEndCell(null);
@@ -666,7 +695,12 @@ const SeatSetupForm = () => {
       const minCol = Math.min(startCell.col, endCell.col);
       const maxCol = Math.max(startCell.col, endCell.col);
 
-      if (rowIndex >= minRow && rowIndex <= maxRow && colIndex >= minCol && colIndex <= maxCol) {
+      if (
+        rowIndex >= minRow &&
+        rowIndex <= maxRow &&
+        colIndex >= minCol &&
+        colIndex <= maxCol
+      ) {
         isInSelection = true;
       }
     }
@@ -678,15 +712,17 @@ const SeatSetupForm = () => {
           width: 40,
           height: 40,
           bgcolor: seatColors[seat],
-          '&:hover': {
+          "&:hover": {
             bgcolor: seatColors[seat],
             opacity: 0.8,
           },
-          border: isSelected ? '3px solid #1976d2' :
-            isInSelection ? '2px dashed #1976d2' :
-              '1px solid white',
-          px: seat === 'couple' ? 2 : 0,
-          position: 'relative',
+          border: isSelected
+            ? "3px solid #1976d2"
+            : isInSelection
+            ? "2px dashed #1976d2"
+            : "1px solid white",
+          px: seat === "couple" ? 2 : 0,
+          position: "relative",
         }}
         onClick={() => handleSeatClick(rowIndex, colIndex)}
       >
@@ -696,20 +732,21 @@ const SeatSetupForm = () => {
     );
   };
 
-
-
   return (
-    <Box sx={{ p: 4, bgcolor: '#121212', color: '#fff' }}>
-      <Paper sx={{ p: 3, mb: 4, borderRadius: 3, bgcolor: '#1e1e1e', color: '#fff' }}>
+    <Box sx={{ p: 4, bgcolor: "#121212", color: "#fff" }}>
+      <Paper
+        sx={{ p: 3, mb: 4, borderRadius: 3, bgcolor: "#1e1e1e", color: "#fff" }}
+      >
         <Stack
           spacing={2}
           mb={5}
           sx={{
-            background: "linear-gradient(to right, rgba(25,25,35,0.9), rgba(40,40,50,0.8))",
+            background:
+              "linear-gradient(to right, rgba(25,25,35,0.9), rgba(40,40,50,0.8))",
             borderRadius: "8px",
             padding: "16px 20px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            borderLeft: "4px solid #1976d2"
+            borderLeft: "4px solid #1976d2",
           }}
         >
           {/* Theater info */}
@@ -725,7 +762,7 @@ const SeatSetupForm = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 mr: 2,
-                fontSize: "1.2rem"
+                fontSize: "1.2rem",
               }}
             >
               🎬
@@ -739,7 +776,7 @@ const SeatSetupForm = () => {
                   fontWeight: 500,
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
-                  fontSize: "0.85rem"
+                  fontSize: "0.85rem",
                 }}
               >
                 Rạp chiếu phim
@@ -752,7 +789,7 @@ const SeatSetupForm = () => {
                   color: "#fff",
                   display: "flex",
                   alignItems: "center",
-                  mt: 0.5
+                  mt: 0.5,
                 }}
               >
                 {screen.theater.name}
@@ -765,7 +802,7 @@ const SeatSetupForm = () => {
                     fontSize: "0.7rem",
                     py: 0.5,
                     px: 1,
-                    borderRadius: "4px"
+                    borderRadius: "4px",
                   }}
                 >
                   PREMIUM
@@ -787,7 +824,7 @@ const SeatSetupForm = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 mr: 2,
-                fontSize: "1.2rem"
+                fontSize: "1.2rem",
               }}
             >
               📍
@@ -801,7 +838,7 @@ const SeatSetupForm = () => {
                   fontWeight: 500,
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
-                  fontSize: "0.85rem"
+                  fontSize: "0.85rem",
                 }}
               >
                 Phòng chiếu
@@ -812,7 +849,7 @@ const SeatSetupForm = () => {
                 sx={{
                   fontWeight: 700,
                   color: "#fff",
-                  mt: 0.5
+                  mt: 0.5,
                 }}
               >
                 {screen.screenNumber}
@@ -823,29 +860,33 @@ const SeatSetupForm = () => {
 
         <Stack direction="row" spacing={2} mb={3}>
           <Button
-            variant={selectedSeatType === 'available' ? 'contained' : 'outlined'}
-            onClick={() => handleSeatTypeSelect('available')}
+            variant={
+              selectedSeatType === "available" ? "contained" : "outlined"
+            }
+            onClick={() => handleSeatTypeSelect("available")}
             color="primary"
           >
             Ghế Thường
           </Button>
           <Button
-            variant={selectedSeatType === 'vip' ? 'contained' : 'outlined'}
-            onClick={() => handleSeatTypeSelect('vip')}
+            variant={selectedSeatType === "vip" ? "contained" : "outlined"}
+            onClick={() => handleSeatTypeSelect("vip")}
             color="secondary"
           >
             Ghế VIP
           </Button>
           <Button
-            variant={selectedSeatType === 'couple' ? 'contained' : 'outlined'}
-            onClick={() => handleSeatTypeSelect('couple')}
+            variant={selectedSeatType === "couple" ? "contained" : "outlined"}
+            onClick={() => handleSeatTypeSelect("couple")}
             color="info"
           >
             Ghế Couple
           </Button>
           <Button
-            variant={selectedSeatType === 'unavailable' ? 'contained' : 'outlined'}
-            onClick={() => handleSeatTypeSelect('unavailable')}
+            variant={
+              selectedSeatType === "unavailable" ? "contained" : "outlined"
+            }
+            onClick={() => handleSeatTypeSelect("unavailable")}
             color="error"
           >
             Không Có Ghế
@@ -875,8 +916,8 @@ const SeatSetupForm = () => {
               {!startCell
                 ? "Chọn điểm bắt đầu"
                 : !endCell
-                  ? "Chọn điểm kết thúc"
-                  : "Đang áp dụng..."}
+                ? "Chọn điểm kết thúc"
+                : "Đang áp dụng..."}
             </Typography>
           )}
         </Stack>
@@ -902,7 +943,7 @@ const SeatSetupForm = () => {
               backgroundColor: "rgba(255, 255, 255, 0.05)",
               padding: "10px 16px",
               borderRadius: "8px",
-              border: "1px solid rgba(93, 126, 255, 0.2)"
+              border: "1px solid rgba(93, 126, 255, 0.2)",
             }}
           >
             <Typography
@@ -918,8 +959,8 @@ const SeatSetupForm = () => {
                   height: "8px",
                   marginRight: "8px",
                   backgroundColor: "#5d7eff",
-                  borderRadius: "2px"
-                }
+                  borderRadius: "2px",
+                },
               }}
             >
               Hàng:
@@ -932,7 +973,7 @@ const SeatSetupForm = () => {
                 fontSize: 20,
                 height: "40px",
                 borderRadius: "8px",
-                background: "rgba(93, 126, 255, 0.1)"
+                background: "rgba(93, 126, 255, 0.1)",
               }}
               onClick={() => setNewRows(Math.max(1, newRows - 1))}
             >
@@ -947,7 +988,7 @@ const SeatSetupForm = () => {
                   textAlign: "center",
                   color: "#e0e0e0",
                   width: 30,
-                }
+                },
               }}
               sx={{
                 backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -964,7 +1005,7 @@ const SeatSetupForm = () => {
                 fontSize: 20,
                 height: "40px",
                 borderRadius: "8px",
-                background: "rgba(93, 126, 255, 0.1)"
+                background: "rgba(93, 126, 255, 0.1)",
               }}
               onClick={() => setNewRows(newRows + 1)}
             >
@@ -980,7 +1021,7 @@ const SeatSetupForm = () => {
               backgroundColor: "rgba(255, 255, 255, 0.05)",
               padding: "10px 16px",
               borderRadius: "8px",
-              border: "1px solid rgba(93, 126, 255, 0.2)"
+              border: "1px solid rgba(93, 126, 255, 0.2)",
             }}
           >
             <Typography
@@ -996,8 +1037,8 @@ const SeatSetupForm = () => {
                   height: "8px",
                   marginRight: "8px",
                   backgroundColor: "#5d7eff",
-                  borderRadius: "2px"
-                }
+                  borderRadius: "2px",
+                },
               }}
             >
               Cột:
@@ -1010,7 +1051,7 @@ const SeatSetupForm = () => {
                 fontSize: 20,
                 height: "40px",
                 borderRadius: "8px",
-                background: "rgba(93, 126, 255, 0.1)"
+                background: "rgba(93, 126, 255, 0.1)",
               }}
               onClick={() => setNewCols(Math.max(1, newCols - 1))}
             >
@@ -1032,7 +1073,6 @@ const SeatSetupForm = () => {
               {cols}
             </Typography> */}
 
-
             <InputBase
               value={newCols}
               onChange={(e) => setNewCols(Number(e.target.value))}
@@ -1041,7 +1081,7 @@ const SeatSetupForm = () => {
                   textAlign: "center",
                   color: "#e0e0e0",
                   width: 30,
-                }
+                },
               }}
               sx={{
                 backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -1051,8 +1091,6 @@ const SeatSetupForm = () => {
               }}
             />
 
-
-
             <Button
               variant="outlined"
               sx={{
@@ -1060,7 +1098,7 @@ const SeatSetupForm = () => {
                 fontSize: 20,
                 height: "40px",
                 borderRadius: "8px",
-                background: "rgba(93, 126, 255, 0.1)"
+                background: "rgba(93, 126, 255, 0.1)",
               }}
               onClick={() => setNewCols(newCols + 1)}
             >
@@ -1084,7 +1122,6 @@ const SeatSetupForm = () => {
               Áp dụng
             </button>
           </Stack>
-
         </Stack>
         {/* <Stack direction="row" spacing={2} mb={3}>
           <FormControl>
@@ -1126,19 +1163,27 @@ const SeatSetupForm = () => {
         </Stack> */}
         <Stack direction="row" spacing={4} mb={3}>
           <Stack>
-            <Typography color="#aaa" fontSize={30}>Số hàng ghế : {rows}</Typography>
+            <Typography color="#aaa" fontSize={30}>
+              Số hàng ghế : {rows}
+            </Typography>
           </Stack>
 
           <Stack>
-            <Typography color="#aaa" fontSize={30}>Số cột ghế : {cols}</Typography>
-
+            <Typography color="#aaa" fontSize={30}>
+              Số cột ghế : {cols}
+            </Typography>
           </Stack>
         </Stack>
 
-
         <Grid container direction="column" spacing={1}>
           {seats.map((row, rowIndex) => (
-            <Grid key={rowIndex} container item spacing={1} justifyContent="center">
+            <Grid
+              key={rowIndex}
+              container
+              item
+              spacing={1}
+              justifyContent="center"
+            >
               {row.map((seat, colIndex) => (
                 <Grid item key={colIndex}>
                   {renderSeatCell(seat, rowIndex, colIndex)}
@@ -1149,32 +1194,42 @@ const SeatSetupForm = () => {
         </Grid>
         <Box mt={2} />
         <Stack direction="row" spacing={10} mb={3} alignItems="center">
-          {['available', 'vip', 'couple'].map(type => (
-            seatTypes[type].enabled && (  // Chỉ render form khi 'enabled' là true
-              <Stack key={type} spacing={1} alignItems="flex-start">
-                <FormControl>
-                  <InputLabel sx={{ color: "#aaa" }}>
-                    Giá {type === 'available' ? 'Thường' : type === 'vip' ? 'VIP' : 'Couple'}
-                  </InputLabel>
-                  <OutlinedInput
-                    type="number"
-                    value={seatTypes[type].price}
-                    onChange={(e) => updateSeatType(type, 'price', e.target.value)}
-                    label={`Giá ${type}`}
-                    startAdornment={<Typography sx={{ mr: 1, color: '#aaa' }}>₫</Typography>}
-                    sx={{
-                      color: "#fff",
-                      width: 140,
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#555'
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#777'
+          {["available", "vip", "couple"].map(
+            (type) =>
+              seatTypes[type].enabled && ( // Chỉ render form khi 'enabled' là true
+                <Stack key={type} spacing={1} alignItems="flex-start">
+                  <FormControl>
+                    <InputLabel sx={{ color: "#aaa" }}>
+                      Giá{" "}
+                      {type === "available"
+                        ? "Thường"
+                        : type === "vip"
+                        ? "VIP"
+                        : "Couple"}
+                    </InputLabel>
+                    <OutlinedInput
+                      type="number"
+                      value={seatTypes[type].price}
+                      onChange={(e) =>
+                        updateSeatType(type, "price", e.target.value)
                       }
-                    }}
-                    disabled={!seatTypes[type].enabled}  // Disable input when 'enabled' is false
-                  />
-                  {/* {errors[type] && (
+                      label={`Giá ${type}`}
+                      startAdornment={
+                        <Typography sx={{ mr: 1, color: "#aaa" }}>₫</Typography>
+                      }
+                      sx={{
+                        color: "#fff",
+                        width: 140,
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "#555",
+                        },
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                          borderColor: "#777",
+                        },
+                      }}
+                      disabled={!seatTypes[type].enabled} // Disable input when 'enabled' is false
+                    />
+                    {/* {errors[type] && (
                     // <FormHelperText>{errors[type]}</FormHelperText>
                     // <div style={{ color: 'red' }}>{errors[type]}</div>
                     <FormHelperText
@@ -1190,27 +1245,27 @@ const SeatSetupForm = () => {
 
 
                   )} */}
-                  <FormControl error={Boolean(errors[type])}>
-                    {/* <OutlinedInput ... /> */}
-                    <FormHelperText
-                      sx={{
-                        color: '#f88',
-                        fontSize: '0.8rem',
-                        fontWeight: 400,
-                        transform: 'translateY(2px) translateX(-15px) scale(0.95)',
-                        minHeight: '20px',                  // Giữ chiều cao cố định
-                        transition: 'all 0.2s ease',
-                        visibility: errors[type] ? 'visible' : 'hidden' // Không làm layout nhảy
-                      }}
-                    >
-                      {errors[type]}
-                    </FormHelperText>
+                    <FormControl error={Boolean(errors[type])}>
+                      {/* <OutlinedInput ... /> */}
+                      <FormHelperText
+                        sx={{
+                          color: "#f88",
+                          fontSize: "0.8rem",
+                          fontWeight: 400,
+                          transform:
+                            "translateY(2px) translateX(-15px) scale(0.95)",
+                          minHeight: "20px", // Giữ chiều cao cố định
+                          transition: "all 0.2s ease",
+                          visibility: errors[type] ? "visible" : "hidden", // Không làm layout nhảy
+                        }}
+                      >
+                        {errors[type]}
+                      </FormHelperText>
+                    </FormControl>
                   </FormControl>
-
-                </FormControl>
-              </Stack>
-            )
-          ))}
+                </Stack>
+              )
+          )}
         </Stack>
         <IconButton
           onClick={() => setPrice(seats)}
@@ -1221,21 +1276,33 @@ const SeatSetupForm = () => {
           <Refresh fontSize="small" />
         </IconButton>
 
-
         <Stack direction="row" justifyContent="space-between" mt={4}>
-          <Button variant="outlined" startIcon={<ArrowBack />} onClick={() => navigate('/screens')} color="primary">
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBack />}
+            onClick={() => navigate("/screens")}
+            color="primary"
+          >
             Back
           </Button>
-          <Button variant="contained" color="primary" endIcon={<Save />} onClick={handleSubmit}>
+          <Button
+            variant="contained"
+            color="primary"
+            endIcon={<Save />}
+            onClick={handleSubmit}
+          >
             Save Configuration
           </Button>
         </Stack>
-
-
       </Paper>
 
-      <Paper sx={{ p: 2, borderRadius: 2, bgcolor: '#1e1e1e', color: '#fff' }}>
-        <Typography variant="subtitle1" fontWeight="bold" gutterBottom color="primary">
+      <Paper sx={{ p: 2, borderRadius: 2, bgcolor: "#1e1e1e", color: "#fff" }}>
+        <Typography
+          variant="subtitle1"
+          fontWeight="bold"
+          gutterBottom
+          color="primary"
+        >
           Legend
         </Typography>
         <Stack direction="row" spacing={4}>
@@ -1247,10 +1314,12 @@ const SeatSetupForm = () => {
                   height: 24,
                   bgcolor: color,
                   borderRadius: 0.5,
-                  border: '1px solid #555',
+                  border: "1px solid #555",
                 }}
               />
-              <Typography variant="body2" color="#e0e0e0">{status}</Typography>
+              <Typography variant="body2" color="#e0e0e0">
+                {status}
+              </Typography>
             </Stack>
           ))}
         </Stack>
@@ -1262,9 +1331,9 @@ const SeatSetupForm = () => {
         onClose={closeTemplateDialog}
         PaperProps={{
           style: {
-            backgroundColor: '#1e1e1e',
-            color: '#fff'
-          }
+            backgroundColor: "#1e1e1e",
+            color: "#fff",
+          },
         }}
       >
         <DialogTitle color="primary">Chọn Template Ghế</DialogTitle>
@@ -1281,15 +1350,15 @@ const SeatSetupForm = () => {
               label="Template"
               sx={{
                 color: "#fff",
-                '.MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#555'
+                ".MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#555",
                 },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#777'
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#777",
                 },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#3f51b5'
-                }
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#3f51b5",
+                },
               }}
             >
               {Object.entries(templates).map(([key, template]) => (
@@ -1300,41 +1369,52 @@ const SeatSetupForm = () => {
                     color: "#333",
                     "&:hover": {
                       backgroundColor: "#333",
-                      color: "#fff",  // <-- thêm dấu #
+                      color: "#fff", // <-- thêm dấu #
                     },
                   }}
-                >{template.name}</MenuItem>
+                >
+                  {template.name}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
 
           <Box sx={{ mt: 3 }}>
-            <Typography variant="subtitle2" color="#e0e0e0">Chi tiết template:</Typography>
-            {selectedTemplate === 'default' && (
+            <Typography variant="subtitle2" color="#e0e0e0">
+              Chi tiết template:
+            </Typography>
+            {selectedTemplate === "default" && (
               <Typography variant="body2" color="#bbb">
                 Tất cả ghế là ghế thường, không có ghế VIP hay ghế đôi.
               </Typography>
             )}
-            {selectedTemplate === 'standard' && (
+            {selectedTemplate === "standard" && (
               <Typography variant="body2" color="#bbb">
-                Phần giữa rạp là ghế VIP, xung quanh là ghế thường, không có ghế đôi.
+                Phần giữa rạp là ghế VIP, xung quanh là ghế thường, không có ghế
+                đôi.
               </Typography>
             )}
-            {selectedTemplate === 'premium' && (
+            {selectedTemplate === "premium" && (
               <Typography variant="body2" color="#bbb">
-                Nửa sau của rạp là ghế VIP, phía trước là ghế thường. Có ghế đôi ở góc cuối cùng.
+                Nửa sau của rạp là ghế VIP, phía trước là ghế thường. Có ghế đôi
+                ở góc cuối cùng.
               </Typography>
             )}
-            {selectedTemplate === 'intimate' && (
+            {selectedTemplate === "intimate" && (
               <Typography variant="body2" color="#bbb">
-                Có lối đi ở giữa rạp. Hàng cuối chủ yếu là ghế đôi, các hàng còn lại là ghế thường.
+                Có lối đi ở giữa rạp. Hàng cuối chủ yếu là ghế đôi, các hàng còn
+                lại là ghế thường.
               </Typography>
             )}
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeTemplateDialog} sx={{ color: "#aaa" }}>Hủy</Button>
-          <Button variant="contained" color="primary" onClick={applyTemplate}>Áp Dụng</Button>
+          <Button onClick={closeTemplateDialog} sx={{ color: "#aaa" }}>
+            Hủy
+          </Button>
+          <Button variant="contained" color="primary" onClick={applyTemplate}>
+            Áp Dụng
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
