@@ -31,8 +31,9 @@ public class TheaterBrandController {
         return ResponseEntity.ok(new ApiResponse<>("Theater Brand retrieved successfully", response));
     }
     @PutMapping("/{theaterBrandId}")
-    public ResponseEntity<ApiResponse<TheaterBrandResponse>> updateTheaterBrand(@RequestBody TheaterBrandRequest request ,@PathVariable Integer theaterBrandId){
-        TheaterBrandResponse response = theaterBrandService.updateTheaterBrand(request,theaterBrandId);
+    public ResponseEntity<ApiResponse<TheaterBrandResponse>> updateTheaterBrand(@RequestParam("theaterBrandName") String theaterBrandName,
+                                                                                @RequestParam(value = "logo", required = false) MultipartFile logo,@PathVariable Integer theaterBrandId) throws IOException {
+        TheaterBrandResponse response = theaterBrandService.updateTheaterBrand(theaterBrandName, logo,theaterBrandId);
         return  ResponseEntity.ok(new ApiResponse<>("Theater brand update successfully", response));
     }
     @DeleteMapping("/{theaterBrandId}")

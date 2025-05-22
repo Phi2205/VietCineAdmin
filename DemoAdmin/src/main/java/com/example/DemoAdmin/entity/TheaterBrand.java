@@ -13,7 +13,7 @@ import lombok.ToString;
 public class TheaterBrand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JoinColumn(name = "TheaterBrandId",nullable = false)
+    @Column(name = "TheaterBrandId",nullable = false)
     private Integer theaterBrandId;
 
     @Column(name = "TheaterBrandName", nullable = false)

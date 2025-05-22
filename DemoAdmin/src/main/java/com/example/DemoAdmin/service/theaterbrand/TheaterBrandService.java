@@ -44,17 +44,26 @@ public class TheaterBrandService implements ITheaterBrandService {
             String logoUrl = (String) uploadResult.get("secure_url");
             theaterBrand.setLogo(logoUrl);
         }
-        System.out.println(theaterBrand);
-        // Save the updated user
         TheaterBrand savedTheaterBrand = theaterBrandReposiroty.save(theaterBrand);
         return theaterBrandMapper.toTheaterBrandResponse(savedTheaterBrand);
     }
 
     @Override
-    public TheaterBrandResponse updateTheaterBrand(TheaterBrandRequest request, Integer id) {
+    public TheaterBrandResponse updateTheaterBrand(String theaterBrandName, MultipartFile logo, Integer id) throws IOException {
         TheaterBrand theaterBrand = theaterBrandReposiroty.findById(id)
                 .orElseThrow(()-> new RuntimeException("Theater Brand not exist"));
-        theaterBrand.setTheaterBrandName(request.getTheaterBrandName());
+        theaterBrand.setTheaterBrandName(theaterBrandName);
+        if (logo != null && !logo.isEmpty()) {
+            Map uploadResult = cloudinary.uploader().upload(logo.getBytes(),
+                    ObjectUtils.asMap(
+                            "public_id", "logo_theater_brand_" + theaterBrandName,
+                            "folder", "vietcine",
+                            "overwrite", true,
+                            "resource_type", "image"
+                    ));
+            String logoUrl = (String) uploadResult.get("secure_url");
+            theaterBrand.setLogo(logoUrl);
+        }
         TheaterBrand updateTheaterBrand = theaterBrandReposiroty.save(theaterBrand);
         return theaterBrandMapper.toTheaterBrandResponse(updateTheaterBrand);
     }

@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ITheaterBrandService {
     TheaterBrandResponse createTheaterBrand(String theaterBrandName, MultipartFile logo) throws IOException;
-    TheaterBrandResponse updateTheaterBrand(TheaterBrandRequest request, Integer id);
+    TheaterBrandResponse updateTheaterBrand(String theaterBrandName, MultipartFile logo, Integer id) throws IOException;
     void deleteTheaterBrand(Integer id);
     TheaterBrandResponse getTheaterBrandById(Integer id);
     List<TheaterBrandResponse> getAllTheaterBand();
