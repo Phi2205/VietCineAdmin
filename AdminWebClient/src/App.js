@@ -26,6 +26,8 @@ import SetupSeatForm from './components/SetupSeatForm'; // Hoặc đúng đườ
 import SeatPriceList from './components/SeatPriceList';
 import SeatPriceForm from './components/SeatPriceForm';
 import TheaterBrandList from './components/TheaterBrandList';
+import VoucherList from './components/VoucherList';
+import PriceAdjustment from './components/PriceAdjustmentList'; 
 function App() {
   return (
     <AuthProvider>
@@ -62,6 +64,8 @@ function App() {
               <Route path='/seatPrices/add' element={<SeatPriceForm />} />
               <Route path='/seatPrices/edit/:id' element={<SeatPriceForm />} />
               <Route path='/theaterBrands' element={<TheaterBrandList />} />
+              <Route path='/vouchers' element={<VoucherList />} />
+              <Route path='/priceAdjustments' element={<PriceAdjustment />} />
             </Route>
           </Routes>
           <ToastContainer />
