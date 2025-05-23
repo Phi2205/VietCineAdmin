@@ -198,6 +198,14 @@ const MainLayout = () => {
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Đồ ăn" />
           </ListItem>
+          <ListItem button onClick={() => handleMenuItemClick('/vouchers')}>
+            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Voucher" />
+          </ListItem>
+          <ListItem button onClick={() => handleMenuItemClick('/priceAdjustments')}>
+            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Price Adjustment" />
+          </ListItem>
         </List>
 
         <Divider sx={{ borderColor: '#34495e' }} />

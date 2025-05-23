@@ -27,6 +27,8 @@ import SeatPriceList from './components/SeatPriceList';
 import SeatPriceForm from './components/SeatPriceForm';
 import TheaterBrandList from './components/TheaterBrandList';
 import FoodList from './components/FoodList'; 
+import VoucherList from './components/VoucherList';
+import PriceAdjustment from './components/PriceAdjustmentList'; 
 function App() {
   return (
     <AuthProvider>
@@ -64,6 +66,8 @@ function App() {
               <Route path='/seatPrices/edit/:id' element={<SeatPriceForm />} />
               <Route path='/theaterBrands' element={<TheaterBrandList />} />
               <Route path='/foods' element={<FoodList />} />
+              <Route path='/vouchers' element={<VoucherList />} />
+              <Route path='/priceAdjustments' element={<PriceAdjustment />} />
             </Route>
           </Routes>
           <ToastContainer />
