@@ -22,6 +22,7 @@ import {
   ToggleButtonGroup,
 } from "@mui/material";
 import FormHelperText from "@mui/material/FormHelperText";
+import CircularProgress from '@mui/material/CircularProgress';
 import { Refresh } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import { Save, ArrowBack, Add, ContentCopy } from "@mui/icons-material";
@@ -33,7 +34,7 @@ import axios from "axios";
 const SeatSetupForm = () => {
   const { id: screenId } = useParams();
   const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState(5);
   const [cols, setCols] = useState(8);
   const [newCols, setNewCols] = useState(5);
@@ -102,19 +103,20 @@ const SeatSetupForm = () => {
     }));
   };
 
-  // Hàm setNewRowAndCol chỉ update cols trước, rows update trong useEffect
+
   const setNewRowAndCol = (newRow, newCol) => {
+    setLoading(true);
     if (newRow > 26) {
       newRow = 26;
-      setNewRows(26); // Cập nhật rows luôn nếu cần
+      setNewRows(26); 
     }
-    updateCols(newCol); // Cập nhật cols trước
+    updateCols(newCol); 
   };
 
-  // useEffect theo dõi cols thay đổi, rồi cập nhật rows
   useEffect(() => {
-    // Khi cols thay đổi, cập nhật rows
-    updateRows(newRows); // hoặc logic khác tùy trường hợp
+
+    updateRows(newRows); 
+    setLoading(false);
   }, [cols]);
 
   const handleChange = (e) => {
@@ -271,6 +273,7 @@ const SeatSetupForm = () => {
 
   useEffect(() => {
     const fetchSeats = async () => {
+      setLoading(true);
       try {
         try {
           axios
@@ -374,6 +377,7 @@ const SeatSetupForm = () => {
         setInitialSeats(data);
 
         setPrice(newSeats);
+        setLoading(false);
       } catch (error) {
         console.error("Lỗi tải dữ liệu ghế:", error);
         const fallback = Array.from({ length: 5 }, () =>
@@ -1174,7 +1178,11 @@ const SeatSetupForm = () => {
             </Typography>
           </Stack>
         </Stack>
-
+        {loading ? (
+                  <Box display="flex" justifyContent="center" alignItems="center" height="300px">
+                    <CircularProgress size={60} sx={{ color: '#ff5252' }} />
+                  </Box>
+                ) :(
         <Grid container direction="column" spacing={1}>
           {seats.map((row, rowIndex) => (
             <Grid
@@ -1191,7 +1199,7 @@ const SeatSetupForm = () => {
               ))}
             </Grid>
           ))}
-        </Grid>
+        </Grid>)}
         <Box mt={2} />
         <Stack direction="row" spacing={10} mb={3} alignItems="center">
           {["available", "vip", "couple"].map(

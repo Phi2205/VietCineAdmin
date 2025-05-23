@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -16,7 +17,7 @@ public class Food {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "FoodId")
-    private Integer foodId;
+    private Integer id;
 
     @Column(name = "FoodName", nullable = false, length = 100)
     private String foodName;
@@ -31,4 +32,7 @@ public class Food {
 
     @Column(name = "Price", nullable = false)
     private Integer price;
+
+    @Column(name = "image", nullable = false)
+    private String image;
 }

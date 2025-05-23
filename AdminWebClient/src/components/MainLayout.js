@@ -194,6 +194,10 @@ const MainLayout = () => {
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Seat Price" />
           </ListItem>
+          <ListItem button onClick={() => handleMenuItemClick('/foods')}>
+            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Đồ ăn" />
+          </ListItem>
         </List>
 
         <Divider sx={{ borderColor: '#34495e' }} />
