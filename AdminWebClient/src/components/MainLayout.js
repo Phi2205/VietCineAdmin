@@ -1,5 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Outlet } from 'react-router-dom';
+import BarChartIcon from '@mui/icons-material/BarChart';
+
 
 import {
   Box,
@@ -205,6 +207,10 @@ const MainLayout = () => {
           <ListItem button onClick={() => handleMenuItemClick('/priceAdjustments')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Price Adjustment" />
+          </ListItem>
+            <ListItem button onClick={() => handleMenuItemClick('/revenue')}>
+            <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Doanh thu" />
           </ListItem>
         </List>
 

@@ -28,7 +28,8 @@ import SeatPriceForm from './components/SeatPriceForm';
 import TheaterBrandList from './components/TheaterBrandList';
 import FoodList from './components/FoodList'; 
 import VoucherList from './components/VoucherList';
-import PriceAdjustment from './components/PriceAdjustmentList'; 
+import PriceAdjustment from './components/PriceAdjustmentList';
+import RevenueForm from './components/RevenueForm'; 
 function App() {
   return (
     <AuthProvider>
@@ -68,6 +69,7 @@ function App() {
               <Route path='/foods' element={<FoodList />} />
               <Route path='/vouchers' element={<VoucherList />} />
               <Route path='/priceAdjustments' element={<PriceAdjustment />} />
+              <Route path='/revenue' element={<RevenueForm />} />
             </Route>
           </Routes>
           <ToastContainer />
