@@ -162,6 +162,8 @@ const RevenueList = ({ data }) => {
         />
       </Box>
 
+      
+
       <TextField
         size="small"
         placeholder="Tìm kiếm theo tên phim, rạp..."
@@ -290,12 +292,34 @@ const RevenueList = ({ data }) => {
       </TableContainer>
       
       {searchTerm && filteredItems.length > 0 && (
-        <Box sx={{ mt: 2, textAlign: 'right', pt: 1, borderTop: `1px solid ${theme.palette.divider}` }}>
-          <Typography variant="body2" fontWeight={500} color={theme.palette.text.secondary}>
-            Tổng doanh thu đã lọc: <span style={{ color: '#4caf50', fontWeight: 'bold' }}>{formatMoney(filteredTotal)}</span>
+        <Box
+          sx={{
+            mt: 3,
+            pt: 2,
+            borderTop: `1px solid ${theme.palette.divider}`,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            backgroundColor: '#f9f9f9',
+            borderRadius: 2,
+            px: 2,
+            py: 1
+          }}
+        >
+          <Typography variant="body2" sx={{ color: theme.palette.text.secondary, fontWeight: 'bold' }}>
+            Tổng doanh thu đã lọc:&nbsp;
+            <Box component="span" sx={{ color: '#4caf50', fontWeight: 'bold' }}>
+              {formatMoney(filteredTotal)}
+            </Box>
+            &nbsp;– chiếm&nbsp;
+            <Box component="span" sx={{ color: '#2196f3', fontWeight: 'bold' }}>
+              {((filteredTotal / data.totalRevenue) * 100).toFixed(1)}%
+            </Box>
+            &nbsp;so với tổng doanh thu
           </Typography>
         </Box>
       )}
+
     </Paper>
   );
 };
@@ -1072,13 +1096,12 @@ const RevenueForm = () => {
 
           {/* Charts and Data Table */}
           <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
-            {/* Chart */}
             <Paper 
               elevation={2} 
               sx={{ 
                 flex: 1, 
                 minWidth: { xs: '100%', md: 400 }, 
-                height: 500, 
+                height: 770,
                 p: 3,
                 borderRadius: 3,
                 display: 'flex',
@@ -1093,13 +1116,7 @@ const RevenueForm = () => {
             >
               <Typography 
                 variant="h6" 
-                sx={{ 
-                  mb: 2, 
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: theme.palette.primary.main
-                }}
+                sx={{ mb: 2, fontWeight: 600, display: 'flex', alignItems: 'center', color: theme.palette.primary.main }}
               >
                 <BarChart sx={{ mr: 1 }} />
                 Biểu đồ phân tích doanh thu
@@ -1115,11 +1132,27 @@ const RevenueForm = () => {
                 )}
               </Box>
             </Paper>
-            
-            {/* Revenue List */}
-            <Box sx={{ flex: 1, minWidth: { xs: '100%', md: 400 } }}>
+
+            <Paper
+              elevation={2}
+              sx={{
+                flex: 1,
+                minWidth: { xs: '100%', md: 400 },
+                height: 770,
+                p: 3,
+                borderRadius: 3,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                }
+              }}
+            >
               <RevenueList data={data} />
-            </Box>
+            </Paper>
           </Box>
         </>
       )}
