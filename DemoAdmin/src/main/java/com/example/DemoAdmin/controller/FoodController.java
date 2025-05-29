@@ -18,14 +18,22 @@ import java.util.List;
 public class FoodController{
     private final FoodService foodService;
     @PostMapping
-    public ResponseEntity<FoodResponse> createFood(@RequestBody FoodRequest request, @RequestParam("image") MultipartFile image) throws IOException {
-        FoodResponse response = foodService.createFood(request,image);
+    public ResponseEntity<FoodResponse> createFood(    @RequestParam("foodName") String foodName,
+                                                       @RequestParam("description") String description,
+                                                       @RequestParam("price") Integer price,
+                                                       @RequestParam("theaterBrandId") Integer theaterBrandId,
+                                                       @RequestParam(value = "image", required = false) MultipartFile image) throws IOException {
+        FoodResponse response = foodService.createFood(foodName, description,theaterBrandId,price ,image);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{foodId}")
-    public ResponseEntity<FoodResponse> updateFood(@RequestBody FoodRequest request, @RequestParam("image") MultipartFile image, @PathVariable Integer foodId) throws IOException {
-        FoodResponse response = foodService.updateFood(request, image, foodId);
+    public ResponseEntity<FoodResponse> updateFood(@RequestParam("foodName") String foodName,
+                                                   @RequestParam("description") String description,
+                                                   @RequestParam("price") Integer price,
+                                                   @RequestParam("theaterBrandId") Integer theaterBrandId,
+                                                   @RequestParam(value = "image", required = false) MultipartFile image, @PathVariable Integer foodId) throws IOException {
+        FoodResponse response = foodService.updateFood(foodName, description, theaterBrandId, price, image, foodId);
         return ResponseEntity.ok(response);
     }
     @DeleteMapping("/{foodId}")

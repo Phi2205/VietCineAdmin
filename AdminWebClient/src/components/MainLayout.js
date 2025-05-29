@@ -206,6 +206,10 @@ const MainLayout = () => {
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Price Adjustment" />
           </ListItem>
+          <ListItem button onClick={() => handleMenuItemClick('/test')}>
+            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Test" />
+          </ListItem>
         </List>
 
         <Divider sx={{ borderColor: '#34495e' }} />
@@ -221,7 +225,7 @@ const MainLayout = () => {
         sx={{
           flexGrow: 1,
           bgcolor: '#000',
-          p: 3,
+          // p: 3,
           mt: 8,
           minHeight: '100vh'
         }}

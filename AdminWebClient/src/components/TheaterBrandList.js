@@ -172,7 +172,7 @@ function AddTheaterBrandDialog({
     if (logo) formData.append("logo", logo);
 
     if (editingBrand) {
-      formData.append("id", editingBrand.id); // hoặc whatever key you use
+      formData.append("id", editingBrand.id); 
       onUpdate(formData);
     } else {
       onAdd(formData);

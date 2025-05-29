@@ -7,6 +7,7 @@ import com.example.DemoAdmin.dto.response.FoodResponse;
 import com.example.DemoAdmin.entity.Food;
 import com.example.DemoAdmin.entity.TheaterBrand;
 import com.example.DemoAdmin.mapper.IFoodMapper;
+import com.example.DemoAdmin.mapper.ITheaterBrandMapper;
 import com.example.DemoAdmin.repository.IFoodRepository;
 import com.example.DemoAdmin.repository.ITheaterBrandRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,16 +30,18 @@ public class FoodService implements IFoodService{
     private final Cloudinary cloudinary;
     @Autowired
     private final IFoodMapper foodMapper;
+    @Autowired
+    private final ITheaterBrandMapper theaterBrandMapper;
 
     @Override
-    public FoodResponse createFood(FoodRequest request, MultipartFile image) throws IOException {
+    public FoodResponse createFood(String foodName, String description, Integer theaterBrandId, Integer price, MultipartFile image) throws IOException {
         Food food = new Food();
-        food.setFoodName(request.getFoodName());
-        food.setDescription(request.getDescription());
-        TheaterBrand theaterBrand = theaterBrandRepository.findById(request.getTheaterBrandId())
+        food.setFoodName(foodName);
+        food.setDescription(description);
+        TheaterBrand theaterBrand = theaterBrandRepository.findById(theaterBrandId)
                 .orElseThrow(()-> new RuntimeException("Theater brand not exist"));
         food.setTheaterBrand(theaterBrand);
-        food.setPrice(request.getPrice());
+        food.setPrice(price);
         if (image != null && !image.isEmpty()) {
             Map uploadResult = cloudinary.uploader().upload(image.getBytes(),
                     ObjectUtils.asMap(
@@ -48,22 +51,23 @@ public class FoodService implements IFoodService{
                             "resource_type", "image"
                     ));
             String imageUrl = (String) uploadResult.get("secure_url");
-            theaterBrand.setLogo(imageUrl);
+            food.setImage(imageUrl);
         }
         Food savedFood = foodRepository.save(food);
-        return foodMapper.toFoodResponse(food);
+        return foodMapper.toFoodResponse(savedFood);
     }
 
     @Override
-    public FoodResponse updateFood(FoodRequest request,MultipartFile image, Integer id) throws IOException {
+    public FoodResponse updateFood(String foodName, String description, Integer theaterBrandId, Integer price,MultipartFile image, Integer id) throws IOException {
         Food food = foodRepository.findById(id)
                         .orElseThrow(()-> new RuntimeException("Not exist Food"));
-        food.setFoodName(request.getFoodName());
-        food.setDescription(request.getDescription());
-        TheaterBrand theaterBrand = theaterBrandRepository.findById(request.getTheaterBrandId())
+        food.setFoodName(foodName);
+        food.setDescription(description);
+
+        TheaterBrand theaterBrand = theaterBrandRepository.findById(theaterBrandId)
                 .orElseThrow(()-> new RuntimeException("Theater brand not exist"));
         food.setTheaterBrand(theaterBrand);
-        food.setPrice(request.getPrice());
+        food.setPrice(price);
         if (image != null && !image.isEmpty()) {
             Map uploadResult = cloudinary.uploader().upload(image.getBytes(),
                     ObjectUtils.asMap(
@@ -96,6 +100,9 @@ public class FoodService implements IFoodService{
     public FoodResponse getFoodById(Integer id) {
         Food food = foodRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException("not exist food"));
+        TheaterBrand theaterBrand = theaterBrandRepository.findById(food.getTheaterBrand().getTheaterBrandId())
+                .orElseThrow(()-> new RuntimeException("Theater brand not exist"));
+        food.setTheaterBrand(theaterBrand);
         return foodMapper.toFoodResponse(food);
     }
 }

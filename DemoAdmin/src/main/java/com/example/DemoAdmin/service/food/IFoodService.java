@@ -8,8 +8,9 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IFoodService {
-    FoodResponse createFood(FoodRequest request, MultipartFile image) throws IOException;
-    FoodResponse updateFood(FoodRequest request, MultipartFile image, Integer id) throws IOException;
+    FoodResponse createFood(String foodName, String description, Integer theaterBrandId, Integer price, MultipartFile image) throws IOException;
+
+    FoodResponse updateFood(String foodName, String description, Integer theaterBrandId, Integer price,MultipartFile image, Integer id) throws IOException;
     void deleteFood(Integer id);
     List<FoodResponse> getAllFood();
     FoodResponse getFoodById(Integer id);

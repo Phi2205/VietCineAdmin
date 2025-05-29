@@ -1,7 +1,8 @@
 package com.example.DemoAdmin.dto.response;
 
+import com.example.DemoAdmin.entity.TheaterBrand;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
+
 
 @Data
 public class FoodResponse {

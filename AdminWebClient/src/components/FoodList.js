@@ -1,87 +1,114 @@
-import React, { useState, useEffect } from "react";
-import { Search, Edit, Trash2, Plus, Star, Heart } from "lucide-react";
-
-const initialFoodItems = [
-  {
-    id: 1,
-    foodName: "Bỏng Ngô Caramel Cao Cấp",
-    description: "Ngọt ngào với lớp caramel thơm lừng, giòn tan tuyệt hảo",
-    theaterBrand: "CGV",
-    price: 45000,
-    image:
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
-    rating: 4.8,
-    category: "Đồ ăn vặt",
-    isPopular: true,
-  },
-  {
-    id: 2,
-    foodName: "Hotdog Đặc Biệt",
-    description: "Xúc xích cao cấp kèm sốt đặc biệt và rau củ tươi ngon",
-    theaterBrand: "Lotte Cinema",
-    price: 55000,
-    image: null,
-    rating: 4.6,
-    category: "Món chính",
-    isPopular: false,
-  },
-  {
-    id: 3,
-    foodName: "Coca-Cola Lạnh",
-    description: "Nước ngọt có ga mát lạnh, sảng khoái tuyệt đối",
-    theaterBrand: "Galaxy Cinema",
-    price: 30000,
-    image:
-      "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=300&h=200&fit=crop",
-    rating: 4.9,
-    category: "Nước uống",
-    isPopular: true,
-  },
-  {
-    id: 4,
-    foodName: "Nachos Đặc Biệt",
-    description: "Bánh tortilla giòn với phô mai tan chảy và jalapeño cay nồng",
-    theaterBrand: "CGV",
-    price: 65000,
-    image:
-      "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=300&h=200&fit=crop",
-    rating: 4.7,
-    category: "Đồ ăn vặt",
-    isPopular: true,
-  },
-];
+import React, { useState, useEffect, useRef } from "react";
+import { Search, Edit, Trash2, Plus } from "lucide-react";
+import axios from "axios";
+import { Box, CircularProgress, Typography } from "@mui/material";
+import { toast } from "react-toastify";
+import FoodForm from "./FoodForm";
+import FoodDialog from "./FoodDialog";
 
 const ModernFoodAdmin = () => {
-  const [foodItems, setFoodItems] = useState(initialFoodItems);
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [foodItems, setFoodItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [edittingFood, setEdittingFood] = useState(null);
 
   useEffect(() => {
-    setTimeout(() => setIsLoaded(true), 100);
+    setIsLoaded(false);
+    setLoading(true);
+    const fetchFood = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/admin/foods");
+        setFoodItems(res.data);
+        setTimeout(() => {
+          setIsLoaded(true);
+        }, 200);
+      } catch (err) {
+        console.error("Lỗi khi gọi API Foods:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFood();
   }, []);
 
-  const handleDelete = (id) => {
-    const confirmed = window.confirm("Bạn có chắc muốn xoá món ăn này?");
-    if (confirmed) {
-      setFoodItems(foodItems.filter((item) => item.id !== id));
+  const handleAdd = async (newFood) => {
+    console.log("New Food Data:", newFood);
+    try {
+      setIsLoaded(false);
+      setLoading(true);
+
+      await axios.post("http://localhost:8080/api/admin/foods", newFood, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const res = await axios.get("http://localhost:8080/api/admin/foods");
+      setFoodItems(res.data);
+      setOpen(false);
+    } catch (err) {
+      toast.error("Lỗi khi thêm món ăn:", err);
+    } finally {
+      setIsLoaded(true);
+      setLoading(false);
     }
   };
 
-  const handleEdit = (item) => {
-    alert(`Sửa món: ${item.foodName}`);
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm("Bạn có chắc muốn xoá món ăn này?");
+    if (confirmed) {
+      setIsLoaded(false);
+      setLoading(true);
+      try {
+        await axios.delete(`http://localhost:8080/api/admin/foods/${id}`);
+        const res = await axios.get("http://localhost:8080/api/admin/foods");
+        setFoodItems(res.data);
+        setTimeout(() => {
+          setIsLoaded(true);
+        }, 200);
+      } catch (err) {
+        toast.error("Lỗi khi xoá món ăn:", err);
+        setIsLoaded(true);
+        setLoading(false);
+      } finally {
+        toast.success("Xoá món ăn thành công!");
+        setIsLoaded(true);
+        setLoading(false);
+      }
+    }
   };
 
-  const categories = ["Tất cả", "Đồ ăn vặt", "Món chính", "Nước uống"];
+  const handleEdit = async (newFood) => {
+    const idFood = newFood.get("id");
+    newFood.delete("id");
+    console.log("theaterBrandId:", newFood.get("theaterBrandId"));
+    try {
+      setIsLoaded(false);
+      setLoading(true);
 
-  const filteredItems = foodItems.filter((item) => {
-    const matchesSearch = item.foodName
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "Tất cả" || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+      await axios.put(
+        `http://localhost:8080/api/admin/foods/${idFood}`,
+        newFood,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      const res = await axios.get("http://localhost:8080/api/admin/foods");
+      setFoodItems(res.data);
+      setOpen(false);
+    } catch (err) {
+      toast.error("Lỗi khi sửa món ăn:", err);
+    } finally {
+      setIsLoaded(true);
+      setLoading(false);
+    }
+  };
 
   const styles = {
     container: {
@@ -89,13 +116,6 @@ const ModernFoodAdmin = () => {
       background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       color: "white",
       fontFamily: "Arial, sans-serif",
-    },
-    header: {
-      textAlign: "center",
-      padding: "2rem 0",
-      opacity: isLoaded ? 1 : 0,
-      transform: isLoaded ? "translateY(0)" : "translateY(20px)",
-      transition: "all 0.8s ease",
     },
     title: {
       fontSize: "3rem",
@@ -105,11 +125,17 @@ const ModernFoodAdmin = () => {
       WebkitBackgroundClip: "text",
       WebkitTextFillColor: "transparent",
       backgroundClip: "text",
+      display: "flex",
+      justifyContent: "center",
     },
     subtitle: {
       fontSize: "1.2rem",
       color: "#f0f0f0",
       margin: 0,
+      display: "flex",
+      justifyContent: "center",
+      fontWeight: "300",
+      marginBottom: "2rem",
     },
     controlsSection: {
       padding: "0 2rem 2rem",
@@ -180,7 +206,6 @@ const ModernFoodAdmin = () => {
       fontWeight: "500",
       transition: "all 0.3s ease",
       margin: "0 auto",
-      display: "block",
     },
     gridContainer: {
       padding: "0 2rem",
@@ -210,17 +235,31 @@ const ModernFoodAdmin = () => {
       padding: "1.5rem",
     },
     cardTitle: {
-      fontSize: "1.25rem",
+      // fontSize: "1.25rem",
+      // fontWeight: "bold",
+      // margin: "0 0 0.5rem 0",
+      // color: "white",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      width: "100%", // hoặc đặt giá trị cố định như '250px'
       fontWeight: "bold",
-      margin: "0 0 0.5rem 0",
-      color: "white",
+      fontSize: "16px",
+            color: "#FFEB3B",
     },
     cardDescription: {
-      fontSize: "0.9rem",
-      color: "#e0e0e0",
-      margin: "0 0 1rem 0",
+      display: "-webkit-box",
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: "vertical",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      // fontWeight: "bold",
+      fontSize: "16px",
       lineHeight: "1.4",
+      minHeight: "calc(1.4em * 2)", // giữ chiều cao cố định cho 2 dòng
+
     },
+
     cardBrand: {
       display: "inline-block",
       padding: "0.25rem 0.75rem",
@@ -341,29 +380,14 @@ const ModernFoodAdmin = () => {
           />
         </div>
 
-        {/* Categories */}
-        <div style={styles.categoriesContainer}>
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              style={{
-                ...styles.categoryButton,
-                ...(selectedCategory === category
-                  ? styles.categoryButtonActive
-                  : styles.categoryButtonInactive),
-              }}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        {/* Add Button */}
         <button
           style={styles.addButton}
           onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
           onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+          onClick={() => {
+            setOpen(true);
+            setEdittingFood(null);
+          }}
         >
           <Plus size={20} />
           Thêm Món Mới
@@ -371,95 +395,129 @@ const ModernFoodAdmin = () => {
       </div>
 
       {/* Food Grid */}
-      <div style={styles.gridContainer}>
-        {filteredItems.map((item, index) => (
-          <div
-            key={item.id}
-            style={{
-              ...styles.card,
-              transitionDelay: `${index * 0.1}s`,
-              position: "relative",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-10px) scale(1.02)";
-              e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0) scale(1)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            {/* <img
+      {loading ? (
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          height="300px"
+          gap={2}
+          sx={{
+            animation: "fadeIn 1s ease-in-out",
+          }}
+        >
+          <CircularProgress size={60} thickness={4} sx={{ color: "#ff5252" }} />
+          <Typography variant="h6" sx={{ color: "#ff5252" }}>
+            Đang tải dữ liệu...
+          </Typography>
+        </Box>
+      ) : (
+        <div style={styles.gridContainer}>
+          {foodItems.map((item, index) => (
+            <div
+              key={item.id}
+              style={{
+                ...styles.card,
+                transitionDelay: `${index * 0.1}s`,
+                position: "relative",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform =
+                  "translateY(-10px) scale(1.02)";
+                e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0) scale(1)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              {/* <img
               src={item.image || "https://th.bing.com/th/id/OIP.buthpwneva6luHGpbt-6tQHaHa?w=165&h=180&c=7&r=0&o=5&cb=iwc2&pid=1.7"}
               alt={item.foodName}
               style={styles.cardImage}
             /> */}
-            <img
-              src={
-                item.image ||
-                "https://th.bing.com/th/id/OIP.buthpwneva6luHGpbt-6tQHaHa?w=165&h=180&c=7&r=0&o=5&cb=iwc2&pid=1.7"
-              }
-              alt={item.foodName}
-              style={styles.cardImage}
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src =
-                  "https://th.bing.com/th/id/OIP.buthpwneva6luHGpbt-6tQHaHa?w=165&h=180&c=7&r=0&o=5&cb=iwc2&pid=1.7";
-              }}
-            />
+              <img
+                src={
+                  item.image ||
+                  "https://th.bing.com/th/id/OIP.buthpwneva6luHGpbt-6tQHaHa?w=165&h=180&c=7&r=0&o=5&cb=iwc2&pid=1.7"
+                }
+                alt={item.foodName}
+                style={styles.cardImage}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src =
+                    "https://th.bing.com/th/id/OIP.buthpwneva6luHGpbt-6tQHaHa?w=165&h=180&c=7&r=0&o=5&cb=iwc2&pid=1.7";
+                }}
+              />
 
-            <div style={styles.cardContent}>
-              <h3 style={styles.cardTitle}>{item.foodName}</h3>
+              <div style={styles.cardContent}>
+                <h3 style={styles.cardTitle}>{item.foodName}</h3>
 
-              <p style={styles.cardDescription}>{item.description}</p>
+                <p style={styles.cardDescription}>{item.description}</p>
 
-              <div style={styles.cardBrand}>{item.theaterBrand}</div>
+                <div style={styles.cardBrand}>
+                  {item.theaterBrand.theaterBrandName}
+                </div>
 
-              <div style={styles.cardPrice}>
-                {item.price.toLocaleString()} VND
-              </div>
+                <div style={styles.cardPrice}>
+                  {item.price.toLocaleString()} VND
+                </div>
 
-              <div style={styles.cardActions}>
-                <button
-                  onClick={() => handleEdit(item)}
-                  style={styles.editButton}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = "scale(1.05)";
-                    e.target.style.backgroundColor = "#2980b9";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = "scale(1)";
-                    e.target.style.backgroundColor = "#3498db";
-                  }}
-                  // disabled={isDeleting}
-                >
-                  <Edit size={16} />
-                  Sửa
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  style={styles.deleteButton}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = "scale(1.05)";
-                    e.target.style.backgroundColor = "#c0392b";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = "scale(1)";
-                    e.target.style.backgroundColor = "#e74c3c";
-                  }}
-                  // disabled={isDeleting}
-                >
-                  <Trash2 size={16} />
-                  Xóa
-                </button>
+                <div style={styles.cardActions}>
+                  <button
+                    onClick={() => {
+                      setEdittingFood(item);
+                      setOpen(true);
+                    }}
+                    style={styles.editButton}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = "scale(1.05)";
+                      e.target.style.backgroundColor = "#2980b9";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = "scale(1)";
+                      e.target.style.backgroundColor = "#3498db";
+                    }}
+                    // disabled={isDeleting}
+                  >
+                    <Edit size={16} />
+                    Sửa
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.foodId)}
+                    style={styles.deleteButton}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = "scale(1.05)";
+                      e.target.style.backgroundColor = "#c0392b";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = "scale(1)";
+                      e.target.style.backgroundColor = "#e74c3c";
+                    }}
+                    // disabled={isDeleting}
+                  >
+                    <Trash2 size={16} />
+                    Xóa
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-
+          ))}
+        </div>
+      )}
       {/* Empty State */}
-      {filteredItems.length === 0 && (
+      {/* <FoodForm/> */}
+      <FoodDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        onAdd={handleAdd}
+        onUpdate={handleEdit}
+        edittingFood={edittingFood}
+        loading={loading}
+      />
+
+      {foodItems.length === 0 && (
         <div style={styles.emptyState}>
           <Search
             size={64}
