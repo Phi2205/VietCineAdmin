@@ -176,6 +176,14 @@ const MainLayout = () => {
             <ListItemIcon><MovieIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Movies" />
           </ListItem>
+          <ListItem button onClick={() => handleMenuItemClick('/casts')}>
+            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Casts" />
+          </ListItem>
+          <ListItem button onClick={() => handleMenuItemClick('/directors')}>
+            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Directors" />
+          </ListItem>
           <ListItem button onClick={() => handleMenuItemClick('/showtimes')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Showtimes" />

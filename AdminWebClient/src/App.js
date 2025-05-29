@@ -30,6 +30,8 @@ import FoodList from './components/FoodList';
 import VoucherList from './components/VoucherList';
 import PriceAdjustment from './components/PriceAdjustmentList';
 import RevenueForm from './components/RevenueForm'; 
+import CastList from './components/CastList'; 
+import DirectorList from './components/DirectorList';
 function App() {
   return (
     <AuthProvider>
@@ -70,6 +72,8 @@ function App() {
               <Route path='/vouchers' element={<VoucherList />} />
               <Route path='/priceAdjustments' element={<PriceAdjustment />} />
               <Route path='/revenue' element={<RevenueForm />} />
+              <Route path='/casts' element={<CastList />} />
+              <Route path='/directors' element={<DirectorList />} />
             </Route>
           </Routes>
           <ToastContainer />
