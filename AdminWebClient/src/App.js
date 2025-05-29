@@ -28,8 +28,15 @@ import SeatPriceForm from './components/SeatPriceForm';
 import TheaterBrandList from './components/TheaterBrandList';
 import FoodList from './components/FoodList'; 
 import VoucherList from './components/VoucherList';
+<<<<<<< HEAD
 import PriceAdjustment from './components/PriceAdjustmentList'; 
 import FoodForm from './components/FoodForm';
+=======
+import PriceAdjustment from './components/PriceAdjustmentList';
+import RevenueForm from './components/RevenueForm'; 
+import CastList from './components/CastList'; 
+import DirectorList from './components/DirectorList';
+>>>>>>> d69780fafda2da31513d7388b4381a63ffeeb921
 function App() {
   return (
     <AuthProvider>
@@ -69,7 +76,13 @@ function App() {
               <Route path='/foods' element={<FoodList />} />
               <Route path='/vouchers' element={<VoucherList />} />
               <Route path='/priceAdjustments' element={<PriceAdjustment />} />
+<<<<<<< HEAD
               <Route path='/test' element={<FoodForm />} />
+=======
+              <Route path='/revenue' element={<RevenueForm />} />
+              <Route path='/casts' element={<CastList />} />
+              <Route path='/directors' element={<DirectorList />} />
+>>>>>>> d69780fafda2da31513d7388b4381a63ffeeb921
             </Route>
           </Routes>
           <ToastContainer />

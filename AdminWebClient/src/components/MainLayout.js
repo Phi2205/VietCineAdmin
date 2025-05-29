@@ -1,5 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Outlet } from 'react-router-dom';
+import BarChartIcon from '@mui/icons-material/BarChart';
+
 
 import {
   Box,
@@ -174,6 +176,14 @@ const MainLayout = () => {
             <ListItemIcon><MovieIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Movies" />
           </ListItem>
+          <ListItem button onClick={() => handleMenuItemClick('/casts')}>
+            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Casts" />
+          </ListItem>
+          <ListItem button onClick={() => handleMenuItemClick('/directors')}>
+            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Directors" />
+          </ListItem>
           <ListItem button onClick={() => handleMenuItemClick('/showtimes')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Showtimes" />
@@ -206,9 +216,15 @@ const MainLayout = () => {
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Price Adjustment" />
           </ListItem>
+<<<<<<< HEAD
           <ListItem button onClick={() => handleMenuItemClick('/test')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Test" />
+=======
+            <ListItem button onClick={() => handleMenuItemClick('/revenue')}>
+            <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Doanh thu" />
+>>>>>>> d69780fafda2da31513d7388b4381a63ffeeb921
           </ListItem>
         </List>
 
