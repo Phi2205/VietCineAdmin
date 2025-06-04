@@ -174,57 +174,51 @@ const MainLayout = () => {
           </Collapse>
           <ListItem button onClick={() => handleMenuItemClick('/movies')}>
             <ListItemIcon><MovieIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Movies" />
+            <ListItemText primary="Danh sách phim" />
           </ListItem>
           <ListItem button onClick={() => handleMenuItemClick('/casts')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Casts" />
+            <ListItemText primary="Danh sách diễn viên" />
           </ListItem>
           <ListItem button onClick={() => handleMenuItemClick('/directors')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Directors" />
+            <ListItemText primary="Danh sách đạo diễn" />
           </ListItem>
           <ListItem button onClick={() => handleMenuItemClick('/showtimes')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Showtimes" />
+            <ListItemText primary="Danh sách lịch chiếu" />
           </ListItem>
           <ListItem button onClick={() => handleMenuItemClick('/theaterBrands')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="TheaterBrands" />
+            <ListItemText primary="Danh sách hãng rạp chiếu phim" />
           </ListItem>
-          <ListItem button onClick={() => handleMenuItemClick('/theaters')}>
+          {/* <ListItem button onClick={() => handleMenuItemClick('/theaters')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Theaters" />
-          </ListItem>
+          </ListItem> */}
           <ListItem button onClick={() => handleMenuItemClick('/screens')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Screens" />
+            <ListItemText primary="Danh sách phòng chiếu" />
           </ListItem>
-          <ListItem button onClick={() => handleMenuItemClick('/seatPrices')}>
+          {/* <ListItem button onClick={() => handleMenuItemClick('/seatPrices')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Seat Price" />
-          </ListItem>
+          </ListItem> */}
           <ListItem button onClick={() => handleMenuItemClick('/foods')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Đồ ăn" />
           </ListItem>
           <ListItem button onClick={() => handleMenuItemClick('/vouchers')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Voucher" />
+            <ListItemText primary="Mã giảm giá" />
           </ListItem>
           <ListItem button onClick={() => handleMenuItemClick('/priceAdjustments')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Price Adjustment" />
+            <ListItemText primary="Điều chỉnh giá" />
           </ListItem>
-<<<<<<< HEAD
-          <ListItem button onClick={() => handleMenuItemClick('/test')}>
-            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Test" />
-=======
-            <ListItem button onClick={() => handleMenuItemClick('/revenue')}>
+          <ListItem button onClick={() => handleMenuItemClick('/revenue')}>
             <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Doanh thu" />
->>>>>>> d69780fafda2da31513d7388b4381a63ffeeb921
           </ListItem>
         </List>
 

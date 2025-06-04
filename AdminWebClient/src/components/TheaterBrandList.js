@@ -362,6 +362,20 @@ const TheaterList = () => {
       .finally(() => setLoading(false));
   };
 
+const loadAllTheaters = async () => {
+  try {
+    setLoading(true); 
+
+    const response = await axios.get("http://localhost:8080/api/admin/theaters");
+
+    setTheaters(response.data);
+    setFilteredTheaters(response.data);
+  } catch (error) {
+    toast.error("Lỗi khi tải dữ liệu rạp chiếu phim");
+  } finally {
+    setLoading(false);
+  }
+};
   const LoadingTheaterByTheaterBrand = (theaterBrandId) => {
     console.log("đang load theater brand ", theaterBrandId);
     setIdBrand(theaterBrandId);
@@ -537,13 +551,13 @@ const TheaterList = () => {
                 }}
               >
                 <VideoSettings sx={{ mr: 1.5, fontSize: 35 }} />
-                Theater Management
+                Quản lý danh sách rạp chiếu phim
               </Typography>
               <Typography
                 variant="subtitle1"
                 sx={{ mt: 0.5, color: "rgba(255,255,255,0.85)" }}
               >
-                Manage all theaters and screens in one place
+                Quản lý các rạp chiếu phim và thương hiệu rạp chiếu phim
               </Typography>
             </Box>
             <Button
@@ -561,7 +575,7 @@ const TheaterList = () => {
                 },
               }}
             >
-              Add New Theater
+              Thêm rạp chiếu phim
             </Button>
           </Stack>
         </Paper>
@@ -597,6 +611,63 @@ const TheaterList = () => {
           </Box>
 
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+          <Card
+              sx={{
+                width: 120,
+                height: 120,
+                borderRadius: 4,
+                overflow: "hidden",
+                boxShadow: "0 8px 20px rgba(25, 118, 210, 0.3)",
+                cursor: "pointer",
+                position: "relative",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                border: (null === idBrand) ? "5px solid rgb(206, 26, 26)" : "none",
+                transform: (null === idBrand) ? "translateY(-4px)" : "none",
+                display: "flex",
+                // pointerEvents: openUpdateTheaterBrand ? "none" : "auto",
+                alignItems: "center",
+                justifyContent: "center",
+                "&:hover": openUpdateTheaterBrand
+                  ? {}
+                  : {
+                      transform: "translateY(-8px)",
+                      boxShadow: "0 12px 30px rgba(25, 118, 210, 0.6)",
+                    },
+              }}
+              onClick={() => {
+                setIdBrand(null);
+                loadAllTheaters();
+              }}
+            >
+                <CardMedia
+                  component="img"
+                  image={'https://res.cloudinary.com/dxiuxuivf/image/upload/v1748935291/vietcine/logo_theater_brand_CGV.png'}
+                  alt={"Tất cả phim"}
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+                                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    width: "100%",
+                    bgcolor: "rgba(0, 0, 0, 0.6)",
+                    color: "#90caf9",
+                    py: 0.6,
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    fontSize: 14,
+                    textTransform: "uppercase",
+                    letterSpacing: 1,
+                    backdropFilter: "blur(5px)",
+                  }}
+                >
+                  Tất cả
+                </Box>
+            </Card>
             {theaterBrands.map((brand) => (
               <Card
                 key={brand.id}
@@ -615,6 +686,7 @@ const TheaterList = () => {
                   position: "relative",
                   border: (brand.id === idBrand) ? "5px solid rgb(206, 26, 26)" : "none",
                   //   pointerEvents: openUpdateTheaterBrand ? "none" : "auto",
+                  transform: (brand.id === idBrand) ? "translateY(-4px)" : "none",
                   transition: "transform 0.3s ease, box-shadow 0.3s ease",
                   "&:hover": openUpdateTheaterBrand
                     ? {}
@@ -757,7 +829,7 @@ const TheaterList = () => {
           <Search sx={{ mx: 1.5, color: "#FF9100" }} />
           <TextField
             fullWidth
-            placeholder="Search theaters by name, address or city..."
+            placeholder="Tìm kiếm rạp chiếu phim theo tên, địa điểm hoặc thành phố..."
             variant="standard"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -799,10 +871,10 @@ const TheaterList = () => {
             >
               <Movie sx={{ fontSize: 80, color: "#666", mb: 3 }} />
               <Typography variant="h5" fontWeight="bold" gutterBottom>
-                No theaters found
+               Không tìm thấy rạp chiếu phim
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Please adjust your search or add a new theater
+                Vui lòng thử tìm kiếm với từ khóa khác hoặc thêm rạp chiếu phim mới.
               </Typography>
             </Paper>
           </Fade>
@@ -975,13 +1047,13 @@ const TheaterList = () => {
         >
           <DialogTitle sx={{ pb: 1 }}>
             <Typography variant="h6" fontWeight="bold">
-              Confirm Deletion
+              Xác nhận xóa rạp chiếu phim
             </Typography>
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Are you sure you want to delete the theater "
-              {theaterToDelete?.name}"? This action cannot be undone.
+              Bạn có chắc chắn muốn xóa rạp chiếu phim "
+              {theaterToDelete?.name}"? Hành động hành không thể hoàn tác.
             </DialogContentText>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
@@ -990,7 +1062,7 @@ const TheaterList = () => {
               variant="outlined"
               sx={{ borderRadius: 2 }}
             >
-              Cancel
+              Thoát
             </Button>
             <Button
               onClick={handleDeleteConfirm}
@@ -998,7 +1070,7 @@ const TheaterList = () => {
               variant="contained"
               sx={{ borderRadius: 2 }}
             >
-              Delete Theater
+              Xóa
             </Button>
           </DialogActions>
         </Dialog>
