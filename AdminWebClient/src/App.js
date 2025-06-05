@@ -33,6 +33,8 @@ import PriceAdjustment from './components/PriceAdjustmentList';
 import RevenueForm from './components/RevenueForm'; 
 import CastList from './components/CastList'; 
 import DirectorList from './components/DirectorList';
+import UserBookingList from './components/UserBookingList';
+
 function App() {
   return (
     <AuthProvider>
@@ -76,6 +78,7 @@ function App() {
               <Route path='/revenue' element={<RevenueForm />} />
               <Route path='/casts' element={<CastList />} />
               <Route path='/directors' element={<DirectorList />} />
+              <Route path="/accounts/user/:id/bookings" element={<UserBookingList />} />
             </Route>
           </Routes>
           <ToastContainer />

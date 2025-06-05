@@ -14,5 +14,9 @@ public class BookingSeat {
 
    @Column(name = "Price")
    private Double price;
+
+   public Integer getSeatId() {
+      return this.getId().getSeat();
+   }
 }
 

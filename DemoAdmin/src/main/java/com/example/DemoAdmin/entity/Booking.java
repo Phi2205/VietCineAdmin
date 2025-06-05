@@ -17,8 +17,26 @@ public class Booking {
    @Column(name = "BookingId")
    private Integer id;
 
+   @Column(name = "UserId")
+   private Integer userId;
+
+   @Column(name = "BookingDate")
+   private LocalDateTime bookingDate;
+
+   @Column(name = "TotalPrice")
+   private Double totalPrice;
+
+   @Column(name = "Status")
+   private String status;
+
    @Column(name = "ShowtimeId")
    private Integer showtimeId;
 
-   // Không cần quan hệ phức tạp
+   @ManyToOne(fetch = FetchType.EAGER)
+   @JoinColumn(name = "ShowtimeId", insertable = false, updatable = false)
+   private Showtime showtime;
+
+   @OneToMany
+   @JoinColumn(name = "BookingId")
+   private List<BookingSeat> bookingSeats;
 }
