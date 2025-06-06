@@ -6,5 +6,5 @@ import lombok.Data;
 public class ScreenRequest {
     private Integer theaterId;
     private String screenNumber;
-    private Integer totalSeats;
+//    private Integer totalSeats;
 }

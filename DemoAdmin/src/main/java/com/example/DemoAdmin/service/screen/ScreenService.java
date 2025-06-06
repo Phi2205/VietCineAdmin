@@ -38,7 +38,8 @@ public class ScreenService implements IScreenService{
         theater.setTotalScreens(theater.getTotalScreens()+ 1);
         screen.setTheater(theater);
         screen.setScreenNumber(request.getScreenNumber());
-        screen.setTotalSeats(request.getTotalSeats());
+//        screen.setTotalSeats(request.getTotalSeats());
+        screen.setTotalSeats(0);
         Theater saveTheater = theaterRepository.save(theater);
         Screen savedScreen = screenRepository.save(screen);
         return  screenMapper.toScreenResponse(savedScreen);
@@ -62,7 +63,8 @@ public class ScreenService implements IScreenService{
 
         screen.setTheater(theater);
         screen.setScreenNumber(request.getScreenNumber());
-        screen.setTotalSeats(request.getTotalSeats());
+//        screen.setTotalSeats(request.getTotalSeats());
+        
         Screen savedScreen = screenRepository.save(screen);
         return screenMapper.toScreenResponse(savedScreen);
     }
