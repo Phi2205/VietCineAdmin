@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react"
+import axios from "axios"
 import {
   Box,
   Typography,
@@ -37,10 +37,10 @@ import {
   FormControlLabel,
   InputAdornment,
   Tooltip,
-} from "@mui/material";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { toast } from "react-toastify";
+} from "@mui/material"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers"
+import { toast } from "react-toastify"
 import {
   Add,
   Edit,
@@ -51,7 +51,7 @@ import {
   AttachMoney,
   FilterList,
   Info,
-} from "@mui/icons-material";
+} from "@mui/icons-material"
 
 // Cinema-inspired dark theme
 const darkTheme = createTheme({
@@ -72,22 +72,30 @@ const darkTheme = createTheme({
       secondary: "rgba(255, 255, 255, 0.7)",
     },
   },
-});
+})
+
+// Hàm lấy thời gian hiện tại theo múi giờ UTC+7
+const getCurrentTimeUTC7 = () => {
+  const now = new Date()
+  // Chuyển đổi sang múi giờ UTC+7 (Việt Nam)
+  const utc7Time = new Date(now.getTime() + 7 * 60 * 60 * 1000)
+  return utc7Time
+}
 
 const VoucherManagement = () => {
-  const [vouchers, setVouchers] = useState([]);
-  const [filteredVouchers, setFilteredVouchers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [theaterBrandsLoading, setTheaterBrandsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [theaterBrands, setTheaterBrands] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState("all");
+  const [vouchers, setVouchers] = useState([])
+  const [filteredVouchers, setFilteredVouchers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [theaterBrandsLoading, setTheaterBrandsLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [theaterBrands, setTheaterBrands] = useState([])
+  const [selectedBrand, setSelectedBrand] = useState("all")
 
   // Dialog states
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [currentVoucher, setCurrentVoucher] = useState(null);
-  const [isVoucherUsed, setIsVoucherUsed] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [currentVoucher, setCurrentVoucher] = useState(null)
+  const [isVoucherUsed, setIsVoucherUsed] = useState(false)
 
   // Form states
   const [formData, setFormData] = useState({
@@ -98,98 +106,96 @@ const VoucherManagement = () => {
     description: "",
     theaterBrandId: "",
     isActive: true,
-  });
+  })
 
   useEffect(() => {
-    fetchTheaterBrands();
-    fetchVouchers();
-  }, []);
+    fetchTheaterBrands()
+    fetchVouchers()
+  }, [])
 
   useEffect(() => {
-    filterVouchers();
-  }, [vouchers, searchTerm, selectedBrand]);
+    filterVouchers()
+  }, [vouchers, searchTerm, selectedBrand])
 
   const fetchTheaterBrands = () => {
-    setTheaterBrandsLoading(true);
+    setTheaterBrandsLoading(true)
     axios
       .get("http://localhost:8080/api/admin/theaterbrands")
       .then((response) => {
-        console.log("Theater Brands:", response.data);
-        setTheaterBrands(response.data);
+        console.log("Theater Brands:", response.data)
+        setTheaterBrands(response.data)
         if (response.data.length > 0) {
-          setFormData((prev) => ({ ...prev, theaterBrandId: response.data[0].id }));
+          setFormData((prev) => ({ ...prev, theaterBrandId: response.data[0].id }))
         }
       })
       .catch((error) => {
-        toast.error("Lỗi khi tải dữ liệu rạp");
+        toast.error("Lỗi khi tải dữ liệu rạp")
       })
-      .finally(() => setTheaterBrandsLoading(false));
-  };
+      .finally(() => setTheaterBrandsLoading(false))
+  }
 
   const fetchVouchers = () => {
-    setLoading(true);
+    setLoading(true)
     axios
       .get("http://localhost:8080/api/admin/vouchers")
       .then((response) => {
-        console.log("Vouchers:", response.data);
-        setVouchers(response.data);
-        setFilteredVouchers(response.data);
+        console.log("Vouchers:", response.data)
+        setVouchers(response.data)
+        setFilteredVouchers(response.data)
       })
       .catch((error) => {
-        toast.error("Lỗi khi tải dữ liệu voucher");
+        toast.error("Lỗi khi tải dữ liệu voucher")
       })
-      .finally(() => setLoading(false));
-  };
+      .finally(() => setLoading(false))
+  }
 
   const fetchVouchersByBrand = (brandId) => {
-    setLoading(true);
+    setLoading(true)
     axios
       .get(`http://localhost:8080/api/admin/vouchers/by-brand/${brandId}`)
       .then((response) => {
-        console.log("Vouchers by brand:", response.data);
-        setVouchers(response.data);
-        setFilteredVouchers(response.data);
+        console.log("Vouchers by brand:", response.data)
+        setVouchers(response.data)
+        setFilteredVouchers(response.data)
       })
       .catch((error) => {
-        toast.error("Lỗi khi tải dữ liệu voucher theo rạp");
+        toast.error("Lỗi khi tải dữ liệu voucher theo rạp")
       })
-      .finally(() => setLoading(false));
-  };
+      .finally(() => setLoading(false))
+  }
 
   const checkVoucherUsage = (voucherId) => {
     return axios
       .get(`http://localhost:8080/api/admin/vouchers/${voucherId}/is-used`)
       .then((response) => {
-        return response.data;
+        return response.data
       })
       .catch((error) => {
-        toast.error("Lỗi khi kiểm tra trạng thái sử dụng voucher");
-        return false;
-      });
-  };
+        toast.error("Lỗi khi kiểm tra trạng thái sử dụng voucher")
+        return false
+      })
+  }
 
   const filterVouchers = () => {
-    let filtered = [...vouchers];
+    let filtered = [...vouchers]
 
     if (searchTerm) {
-      filtered = filtered.filter((voucher) =>
-        voucher.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      filtered = filtered.filter((voucher) => voucher.description.toLowerCase().includes(searchTerm.toLowerCase()))
     }
 
-    setFilteredVouchers(filtered);
-  };
+    setFilteredVouchers(filtered)
+  }
 
   const handleBrandChange = (event) => {
-    const brandId = event.target.value;
-    setSelectedBrand(brandId);
+    const brandId = event.target.value
+    setSelectedBrand(brandId)
 
     if (brandId === "all") {
-      fetchVouchers();
+      fetchVouchers()
     } else {
-      fetchVouchersByBrand(brandId);
+      fetchVouchersByBrand(brandId)
     }
-  };
+  }
 
   const handleAddVoucher = () => {
     axios
@@ -198,18 +204,18 @@ const VoucherManagement = () => {
         theaterBrandId: formData.theaterBrandId,
       })
       .then((response) => {
-        setVouchers([...vouchers, response.data.data]);
-        toast.success("Thêm voucher thành công");
-        setAddDialogOpen(false);
-        resetFormData();
+        setVouchers([...vouchers, response.data.data])
+        toast.success("Thêm voucher thành công")
+        setAddDialogOpen(false)
+        resetFormData()
       })
       .catch((error) => {
-        toast.error("Lỗi khi thêm voucher: " + (error.response?.data?.message || error.message));
-      });
-  };
+        toast.error("Lỗi khi thêm voucher: " + (error.response?.data?.message || error.message))
+      })
+  }
 
   const handleEditVoucher = () => {
-    if (!currentVoucher) return;
+    if (!currentVoucher) return
 
     axios
       .put(`http://localhost:8080/api/admin/vouchers/${currentVoucher.id}`, {
@@ -217,45 +223,41 @@ const VoucherManagement = () => {
         theaterBrandId: formData.theaterBrandId,
       })
       .then((response) => {
-        const updatedVouchers = vouchers.map((v) =>
-          v.id === currentVoucher.id ? response.data : v
-        );
-        setVouchers(updatedVouchers);
-        toast.success("Cập nhật voucher thành công");
-        setEditDialogOpen(false);
+        const updatedVouchers = vouchers.map((v) => (v.id === currentVoucher.id ? response.data : v))
+        setVouchers(updatedVouchers)
+        toast.success("Cập nhật voucher thành công")
+        setEditDialogOpen(false)
       })
       .catch((error) => {
-        toast.error("Lỗi khi cập nhật voucher: " + (error.response?.data?.message || error.message));
-      });
-  };
+        toast.error("Lỗi khi cập nhật voucher: " + (error.response?.data?.message || error.message))
+      })
+  }
 
   const handleToggleActive = async (voucher) => {
     const updatedVoucher = {
       ...voucher,
       isActive: !voucher.isActive,
-    };
+    }
 
     axios
       .put(`http://localhost:8080/api/admin/vouchers/${voucher.id}`, {
         isActive: !voucher.isActive,
       })
       .then((response) => {
-        const updatedVouchers = vouchers.map((v) =>
-          v.id === voucher.id ? { ...v, isActive: !v.isActive } : v
-        );
-        setVouchers(updatedVouchers);
-        toast.success(`Voucher đã được ${!voucher.isActive ? "kích hoạt" : "vô hiệu hóa"}`);
+        const updatedVouchers = vouchers.map((v) => (v.id === voucher.id ? { ...v, isActive: !v.isActive } : v))
+        setVouchers(updatedVouchers)
+        toast.success(`Voucher đã được ${!voucher.isActive ? "kích hoạt" : "vô hiệu hóa"}`)
       })
       .catch((error) => {
-        toast.error("Lỗi khi cập nhật trạng thái voucher");
-      });
-  };
+        toast.error("Lỗi khi cập nhật trạng thái voucher")
+      })
+  }
 
   const openEditDialog = async (voucher) => {
-    setCurrentVoucher(voucher);
+    setCurrentVoucher(voucher)
 
-    const isUsed = await checkVoucherUsage(voucher.id);
-    setIsVoucherUsed(isUsed);
+    const isUsed = await checkVoucherUsage(voucher.id)
+    setIsVoucherUsed(isUsed)
 
     setFormData({
       discount: voucher.discount,
@@ -265,10 +267,10 @@ const VoucherManagement = () => {
       description: voucher.description,
       theaterBrandId: voucher.theaterBrandId,
       isActive: voucher.isActive,
-    });
+    })
 
-    setEditDialogOpen(true);
-  };
+    setEditDialogOpen(true)
+  }
 
   const resetFormData = () => {
     setFormData({
@@ -279,59 +281,66 @@ const VoucherManagement = () => {
       description: "",
       theaterBrandId: theaterBrands.length > 0 ? theaterBrands[0].id : "",
       isActive: true,
-    });
-  };
+    })
+  }
 
   const handleInputChange = (e) => {
-    const { name, value, checked } = e.target;
+    const { name, value, checked } = e.target
     setFormData({
       ...formData,
       [name]: name === "isActive" ? checked : value,
-    });
-  };
+    })
+  }
 
   const handleDateChange = (name, date) => {
     setFormData({
       ...formData,
       [name]: date,
-    });
-  };
+    })
+  }
 
-  // Stats calculation
-  const activeVouchers = vouchers.filter((v) => v.isActive).length;
-  const expiredVouchers = vouchers.filter((v) => new Date(v.validUntil) < new Date()).length;
+  // Utility functions
+  const isExpired = (validUntil) => {
+    const now = getCurrentTimeUTC7()
+    return new Date(validUntil) < now
+  }
+
+  // Check if voucher is currently active based on validFrom and validUntil
+  const isActiveNow = (validFrom, validUntil) => {
+    const now = getCurrentTimeUTC7()
+    return new Date(validFrom) <= now && now <= new Date(validUntil)
+  }
+
+  // Format discount for display in avatar (show as "k" format)
+  const formatDiscountForAvatar = (discount) => {
+    if (discount >= 1000) {
+      return `${Math.floor(discount / 1000)}k`
+    }
+    return discount.toString()
+  }
 
   const getGradientColor = (discount) => {
-    if (discount >= 50) {
-      return "linear-gradient(135deg, #D500F9, #651FFF)";
-    } else if (discount >= 30) {
-      return "linear-gradient(135deg, #00E676, #00B0FF)";
+    if (discount >= 50000) {
+      return "linear-gradient(135deg, #D500F9, #651FFF)"
+    } else if (discount >= 30000) {
+      return "linear-gradient(135deg, #00E676, #00B0FF)"
     } else {
-      return "linear-gradient(135deg, #FF9100, #FF5252)";
+      return "linear-gradient(135deg, #FF9100, #FF5252)"
     }
-  };
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString("vi-VN", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-    });
-  };
+    })
+  }
 
-  const isExpired = (validUntil) => {
-    return new Date(validUntil) < new Date();
-  };
-
-  // Check if voucher is currently active based on validFrom and validUntil
-  const isActiveNow = (validFrom, validUntil) => {
-    const now = new Date("2025-05-23T12:11:00+07:00");
-    return (
-      new Date(validFrom) <= now &&
-      now <= new Date(validUntil)
-    );
-  };
+  // Stats calculation
+  const activeVouchers = vouchers.filter((v) => v.isActive).length
+  const expiredVouchers = vouchers.filter((v) => isExpired(v.validUntil)).length
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -383,8 +392,8 @@ const VoucherManagement = () => {
               variant="contained"
               startIcon={<Add />}
               onClick={() => {
-                resetFormData();
-                setAddDialogOpen(true);
+                resetFormData()
+                setAddDialogOpen(true)
               }}
               sx={{
                 borderRadius: 2,
@@ -627,8 +636,8 @@ const VoucherManagement = () => {
                 </TableHead>
                 <TableBody>
                   {filteredVouchers.map((voucher) => {
-                    const theaterBrand = theaterBrands.find((brand) => brand.id === voucher.theaterBrandId);
-                    const theaterBrandName = theaterBrand ? theaterBrand.theaterBrandName : "Không xác định";
+                    const theaterBrand = theaterBrands.find((brand) => brand.id === voucher.theaterBrandId)
+                    const theaterBrandName = theaterBrand ? theaterBrand.theaterBrandName : "Không xác định"
 
                     return (
                       <TableRow
@@ -652,10 +661,12 @@ const VoucherManagement = () => {
                                 boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
                               }}
                             >
-                              {voucher.discount}k
+                              {formatDiscountForAvatar(voucher.discount)}
                             </Avatar>
                             <Box>
-                              <Typography fontWeight="bold">Giảm {voucher.discount}k</Typography>
+                              <Typography fontWeight="bold">
+                                Giảm {voucher.discount.toLocaleString("vi-VN")} vnđ
+                              </Typography>
                               <Typography variant="caption" color="text.secondary">
                                 {voucher.description}
                               </Typography>
@@ -710,7 +721,7 @@ const VoucherManagement = () => {
                         <TableCell>
                           <Stack direction="row" spacing={1} alignItems="center">
                             <AttachMoney style={{ width: 20, height: 20, color: "#00bcd4" }} />
-                            <Typography>{voucher.minBillPrice.toLocaleString("vi-VN")} kVNĐ</Typography>
+                            <Typography>{voucher.minBillPrice.toLocaleString("vi-VN")} vnđ</Typography>
                           </Stack>
                         </TableCell>
                         <TableCell>
@@ -746,7 +757,7 @@ const VoucherManagement = () => {
                           </Tooltip>
                         </TableCell>
                       </TableRow>
-                    );
+                    )
                   })}
                 </TableBody>
               </Table>
@@ -783,7 +794,7 @@ const VoucherManagement = () => {
                   value={formData.discount}
                   onChange={handleInputChange}
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">k</InputAdornment>,
+                    endAdornment: <InputAdornment position="end">vnđ</InputAdornment>,
                   }}
                   sx={{ mb: 2 }}
                 />
@@ -795,7 +806,7 @@ const VoucherManagement = () => {
                   value={formData.minBillPrice}
                   onChange={handleInputChange}
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">kVNĐ</InputAdornment>,
+                    endAdornment: <InputAdornment position="end">vnđ</InputAdornment>,
                   }}
                   sx={{ mb: 2 }}
                 />
@@ -816,12 +827,7 @@ const VoucherManagement = () => {
                 </FormControl>
                 <FormControlLabel
                   control={
-                    <Switch
-                      checked={formData.isActive}
-                      onChange={handleInputChange}
-                      name="isActive"
-                      color="primary"
-                    />
+                    <Switch checked={formData.isActive} onChange={handleInputChange} name="isActive" color="primary" />
                   }
                   label="Kích hoạt voucher"
                 />
@@ -887,7 +893,16 @@ const VoucherManagement = () => {
             <Grid container spacing={3} sx={{ mt: 1 }}>
               <Grid item xs={12} md={6}>
                 {isVoucherUsed && (
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2, bgcolor: "rgba(255, 82, 82, 0.15)", p: 1, borderRadius: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mb: 2,
+                      bgcolor: "rgba(255, 82, 82, 0.15)",
+                      p: 1,
+                      borderRadius: 1,
+                    }}
+                  >
                     <Info sx={{ color: "#ff5252", mr: 1 }} />
                     <Typography variant="body2" color="#ff5252">
                       Voucher này đã có người sử dụng, chỉ có thể chỉnh sửa trạng thái
@@ -902,7 +917,7 @@ const VoucherManagement = () => {
                   value={formData.discount}
                   onChange={handleInputChange}
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">k</InputAdornment>,
+                    endAdornment: <InputAdornment position="end">vnđ</InputAdornment>,
                   }}
                   sx={{ mb: 2 }}
                   disabled={isVoucherUsed}
@@ -915,7 +930,7 @@ const VoucherManagement = () => {
                   value={formData.minBillPrice}
                   onChange={handleInputChange}
                   InputProps={{
-                    endAdornment: <InputAdornment position="end">kVNĐ</InputAdornment>,
+                    endAdornment: <InputAdornment position="end">vnđ</InputAdornment>,
                   }}
                   sx={{ mb: 2 }}
                   disabled={isVoucherUsed}
@@ -938,12 +953,7 @@ const VoucherManagement = () => {
                 </FormControl>
                 <FormControlLabel
                   control={
-                    <Switch
-                      checked={formData.isActive}
-                      onChange={handleInputChange}
-                      name="isActive"
-                      color="primary"
-                    />
+                    <Switch checked={formData.isActive} onChange={handleInputChange} name="isActive" color="primary" />
                   }
                   label="Kích hoạt voucher"
                 />
@@ -991,7 +1001,7 @@ const VoucherManagement = () => {
         </Dialog>
       </Box>
     </ThemeProvider>
-  );
-};
+  )
+}
 
-export default VoucherManagement;
+export default VoucherManagement
