@@ -74,6 +74,14 @@ const darkTheme = createTheme({
   },
 })
 
+// Hàm lấy thời gian hiện tại theo múi giờ UTC+7
+const getCurrentTimeUTC7 = () => {
+  const now = new Date()
+  // Chuyển đổi sang múi giờ UTC+7 (Việt Nam)
+  const utc7Time = new Date(now.getTime() + 7 * 60 * 60 * 1000)
+  return utc7Time
+}
+
 const VoucherManagement = () => {
   const [vouchers, setVouchers] = useState([])
   const [filteredVouchers, setFilteredVouchers] = useState([])
@@ -291,9 +299,25 @@ const VoucherManagement = () => {
     })
   }
 
-  // Stats calculation
-  const activeVouchers = vouchers.filter((v) => v.isActive).length
-  const expiredVouchers = vouchers.filter((v) => new Date(v.validUntil) < new Date()).length
+  // Utility functions
+  const isExpired = (validUntil) => {
+    const now = getCurrentTimeUTC7()
+    return new Date(validUntil) < now
+  }
+
+  // Check if voucher is currently active based on validFrom and validUntil
+  const isActiveNow = (validFrom, validUntil) => {
+    const now = getCurrentTimeUTC7()
+    return new Date(validFrom) <= now && now <= new Date(validUntil)
+  }
+
+  // Format discount for display in avatar (show as "k" format)
+  const formatDiscountForAvatar = (discount) => {
+    if (discount >= 1000) {
+      return `${Math.floor(discount / 1000)}k`
+    }
+    return discount.toString()
+  }
 
   const getGradientColor = (discount) => {
     if (discount >= 50000) {
@@ -314,23 +338,9 @@ const VoucherManagement = () => {
     })
   }
 
-  const isExpired = (validUntil) => {
-    return new Date(validUntil) < new Date()
-  }
-
-  // Check if voucher is currently active based on validFrom and validUntil
-  const isActiveNow = (validFrom, validUntil) => {
-    const now = new Date("2025-05-23T12:11:00+07:00")
-    return new Date(validFrom) <= now && now <= new Date(validUntil)
-  }
-
-  // Format discount for display in avatar (show as "k" format)
-  const formatDiscountForAvatar = (discount) => {
-    if (discount >= 1000) {
-      return `${Math.floor(discount / 1000)}k`
-    }
-    return discount.toString()
-  }
+  // Stats calculation
+  const activeVouchers = vouchers.filter((v) => v.isActive).length
+  const expiredVouchers = vouchers.filter((v) => isExpired(v.validUntil)).length
 
   return (
     <ThemeProvider theme={darkTheme}>

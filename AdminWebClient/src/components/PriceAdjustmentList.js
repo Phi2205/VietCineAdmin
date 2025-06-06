@@ -86,6 +86,14 @@ const toEnglishDay = (day) => {
   return Object.keys(dayMapping).find((key) => dayMapping[key] === day) || day
 }
 
+// Hàm lấy thời gian hiện tại theo múi giờ UTC+7
+const getCurrentTimeUTC7 = () => {
+  const now = new Date()
+  // Chuyển đổi sang múi giờ UTC+7 (Việt Nam)
+  const utc7Time = new Date(now.getTime() + (7 * 60 * 60 * 1000))
+  return utc7Time
+}
+
 const PriceAdjustmentManagement = () => {
   const [adjustments, setAdjustments] = useState([])
   const [filteredAdjustments, setFilteredAdjustments] = useState([])
@@ -303,10 +311,45 @@ const PriceAdjustmentManagement = () => {
     }
   }
 
+  const isExpired = (specificDate, dayOfWeek) => {
+    const now = getCurrentTimeUTC7()
+
+    if (specificDate) {
+      const adjustmentDate = new Date(specificDate)
+      // So sánh chỉ ngày, không tính giờ
+      const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const adjDate = new Date(adjustmentDate.getFullYear(), adjustmentDate.getMonth(), adjustmentDate.getDate())
+      return adjDate < nowDate
+    }
+
+    // Đối với dayOfWeek, không bao giờ hết hạn vì nó lặp lại hàng tuần
+    return false
+  }
+
+  const shouldDisableEdit = (specificDate, dayOfWeek) => {
+    const now = getCurrentTimeUTC7()
+
+    if (specificDate) {
+      // Nếu là ngày cụ thể và đã đến hoặc qua ngày đó
+      const adjustmentDate = new Date(specificDate)
+      const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const adjDate = new Date(adjustmentDate.getFullYear(), adjustmentDate.getMonth(), adjustmentDate.getDate())
+      return adjDate <= nowDate
+    } else if (dayOfWeek) {
+      // Nếu là ngày trong tuần và đang là ngày đó
+      const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+      const today = dayNames[now.getDay()]
+      return dayOfWeek === today
+    }
+
+    return false
+  }
+
   const openEditDialog = async (adjustment) => {
     setCurrentAdjustment(adjustment)
 
-    const isActive = await checkAdjustmentActive(adjustment.adjustmentId)
+    // Sử dụng logic local thay vì gọi API
+    const isActive = shouldDisableEdit(adjustment.specificDate, adjustment.dayOfWeek)
     setIsAdjustmentActive(isActive)
 
     setFormData({
@@ -359,18 +402,16 @@ const PriceAdjustmentManagement = () => {
     }))
   }
 
-  const isExpired = (specificDate) => {
-    return specificDate && new Date(specificDate) < new Date("2025-05-23T11:52:00+07:00")
-  }
-
   const isActiveToday = (specificDate, dayOfWeek) => {
-    const now = new Date("2025-05-23T11:52:00+07:00")
+    const now = getCurrentTimeUTC7()
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     const today = dayNames[now.getDay()]
 
     if (specificDate) {
       const adjustmentDate = new Date(specificDate)
-      return adjustmentDate.toDateString() === now.toDateString()
+      const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const adjDate = new Date(adjustmentDate.getFullYear(), adjustmentDate.getMonth(), adjustmentDate.getDate())
+      return adjDate.getTime() === nowDate.getTime()
     } else if (dayOfWeek) {
       return dayOfWeek === today
     }
@@ -378,7 +419,7 @@ const PriceAdjustmentManagement = () => {
   }
 
   const activeAdjustments = adjustments.filter((a) => a.isActive).length
-  const expiredAdjustments = adjustments.filter((a) => a.specificDate && isExpired(a.specificDate)).length
+  const expiredAdjustments = adjustments.filter((a) => isExpired(a.specificDate, a.dayOfWeek)).length
 
   const getGradientColor = (priceIncrease) => {
     if (Math.abs(priceIncrease) >= 50000) {
@@ -718,7 +759,8 @@ const PriceAdjustmentManagement = () => {
                     const seatType = seatTypes.find((st) => st.id === adjustment.seatTypeId)
                     const seatTypeName = seatType ? seatType.name : "Không xác định"
                     const isActive = isActiveToday(adjustment.specificDate, adjustment.dayOfWeek)
-                    const isExpiredStatus = adjustment.specificDate && isExpired(adjustment.specificDate)
+                    const isExpiredStatus = isExpired(adjustment.specificDate, adjustment.dayOfWeek)
+                    const shouldDisable = shouldDisableEdit(adjustment.specificDate, adjustment.dayOfWeek)
                     const displayAmount = Math.abs(adjustment.priceIncrease)
                     const isDecrease = adjustment.priceIncrease < 0
 
@@ -784,13 +826,26 @@ const PriceAdjustmentManagement = () => {
                                 }}
                               />
                             )}
-                            {!isActive && isExpiredStatus && (
+                            {isExpiredStatus && (
                               <Chip
                                 label="Đã hết hạn"
                                 size="small"
                                 sx={{
                                   bgcolor: "rgba(255, 82, 82, 0.15)",
                                   color: "#ff5252",
+                                  fontSize: "0.7rem",
+                                  height: 20,
+                                  mt: 0.5,
+                                }}
+                              />
+                            )}
+                            {shouldDisable && !isExpiredStatus && (
+                              <Chip
+                                label="Không thể chỉnh sửa"
+                                size="small"
+                                sx={{
+                                  bgcolor: "rgba(255, 193, 7, 0.15)",
+                                  color: "#ffc107",
                                   fontSize: "0.7rem",
                                   height: 20,
                                   mt: 0.5,
@@ -973,7 +1028,9 @@ const PriceAdjustmentManagement = () => {
                   >
                     <Info sx={{ color: "#ff5252", mr: 1 }} />
                     <Typography variant="body2" color="#ff5252">
-                      Điều chỉnh giá này đã đến hoặc quá ngày áp dụng, chỉ có thể chỉnh sửa trạng thái
+                      {currentAdjustment?.specificDate
+                        ? "Điều chỉnh giá này đã đến hoặc quá ngày áp dụng, chỉ có thể chỉnh sửa trạng thái"
+                        : "Điều chỉnh giá này đang được áp dụng hôm nay, chỉ có thể chỉnh sửa trạng thái"}
                     </Typography>
                   </Box>
                 )}
