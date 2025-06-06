@@ -109,7 +109,7 @@ const MovieList = () => {
   const fetchMovies =  async () => {
     setLoading(true);
     axios
-      .get(`http://localhost:8080/api/admin/movies/page?page=${currentPage-1}&size=1`)
+      .get(`http://localhost:8080/api/admin/movies/page?page=${currentPage-1}&size=5`)
       .then((response) => {
         setMovies(response.data.content || []);
         setFilteredMovies(response.data.content || []);

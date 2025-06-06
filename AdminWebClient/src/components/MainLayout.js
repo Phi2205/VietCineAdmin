@@ -220,10 +220,6 @@ const MainLayout = () => {
             <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Doanh thu" />
           </ListItem>
-          <ListItem button onClick={() => handleMenuItemClick('/test')}>
-            <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Doanh thu" />
-          </ListItem>
         </List>
 
         <Divider sx={{ borderColor: '#34495e' }} />
