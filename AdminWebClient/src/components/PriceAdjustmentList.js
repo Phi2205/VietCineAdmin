@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react"
+import axios from "axios"
 import {
   Box,
   Typography,
@@ -40,20 +40,11 @@ import {
   Radio,
   RadioGroup,
   FormControlLabel as RadioFormControlLabel,
-} from "@mui/material";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { toast } from "react-toastify";
-import {
-  Add,
-  Edit,
-  Search,
-  LocalOffer,
-  CalendarMonth,
-  AttachMoney,
-  FilterList,
-  Info,
-} from "@mui/icons-material";
+} from "@mui/material"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers"
+import { toast } from "react-toastify"
+import { Add, Edit, Search, LocalOffer, CalendarMonth, AttachMoney, FilterList, Info } from "@mui/icons-material"
 
 // Cinema-inspired dark theme
 const darkTheme = createTheme({
@@ -74,7 +65,7 @@ const darkTheme = createTheme({
       secondary: "rgba(255, 255, 255, 0.7)",
     },
   },
-});
+})
 
 // Ánh xạ ngày trong tuần giữa backend (tiếng Anh) và UI (tiếng Việt)
 const dayMapping = {
@@ -85,31 +76,31 @@ const dayMapping = {
   Friday: "Thứ 6",
   Saturday: "Thứ 7",
   Sunday: "Chủ Nhật",
-};
+}
 
 // Hàm chuyển đổi từ backend (tiếng Anh) sang UI (tiếng Việt)
-const toVietnameseDay = (day) => dayMapping[day] || day;
+const toVietnameseDay = (day) => dayMapping[day] || day
 
 // Hàm chuyển đổi từ UI (tiếng Việt) sang backend (tiếng Anh)
 const toEnglishDay = (day) => {
-  return Object.keys(dayMapping).find((key) => dayMapping[key] === day) || day;
-};
+  return Object.keys(dayMapping).find((key) => dayMapping[key] === day) || day
+}
 
 const PriceAdjustmentManagement = () => {
-  const [adjustments, setAdjustments] = useState([]);
-  const [filteredAdjustments, setFilteredAdjustments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [seatTypesLoading, setSeatTypesLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [seatTypes, setSeatTypes] = useState([]);
-  const [selectedSeatType, setSelectedSeatType] = useState("all");
-  const [selectedTimeType, setSelectedTimeType] = useState("all");
+  const [adjustments, setAdjustments] = useState([])
+  const [filteredAdjustments, setFilteredAdjustments] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [seatTypesLoading, setSeatTypesLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [seatTypes, setSeatTypes] = useState([])
+  const [selectedSeatType, setSelectedSeatType] = useState("all")
+  const [selectedTimeType, setSelectedTimeType] = useState("all")
 
   // Dialog states
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [currentAdjustment, setCurrentAdjustment] = useState(null);
-  const [isAdjustmentActive, setIsAdjustmentActive] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [currentAdjustment, setCurrentAdjustment] = useState(null)
+  const [isAdjustmentActive, setIsAdjustmentActive] = useState(false)
 
   // Form states
   const [formData, setFormData] = useState({
@@ -120,108 +111,108 @@ const PriceAdjustmentManagement = () => {
     priceIncrease: 0,
     isActive: true,
     timeType: "dayOfWeek",
-  });
+  })
 
   useEffect(() => {
-    fetchSeatTypes();
-    fetchAdjustments();
-  }, []);
+    fetchSeatTypes()
+    fetchAdjustments()
+  }, [])
 
   useEffect(() => {
-    filterAdjustments();
-  }, [adjustments, searchTerm, selectedSeatType, selectedTimeType]);
+    filterAdjustments()
+  }, [adjustments, searchTerm, selectedSeatType, selectedTimeType])
 
   const fetchSeatTypes = () => {
-    setSeatTypesLoading(true);
+    setSeatTypesLoading(true)
     axios
       .get("http://localhost:8080/api/admin/seat-types")
       .then((response) => {
-        console.log("Seat Types:", response.data);
-        setSeatTypes(response.data);
+        console.log("Seat Types:", response.data)
+        setSeatTypes(response.data)
         if (response.data.length > 0) {
-          setFormData((prev) => ({ ...prev, seatTypeId: response.data[0].id }));
+          setFormData((prev) => ({ ...prev, seatTypeId: response.data[0].id }))
         }
       })
       .catch((error) => {
-        toast.error("Lỗi khi tải dữ liệu loại ghế");
+        toast.error("Lỗi khi tải dữ liệu loại ghế")
       })
-      .finally(() => setSeatTypesLoading(false));
-  };
+      .finally(() => setSeatTypesLoading(false))
+  }
 
   const fetchAdjustments = () => {
-    setLoading(true);
+    setLoading(true)
     axios
       .get("http://localhost:8080/api/admin/price-adjustments")
       .then((response) => {
-        console.log("Price Adjustments:", response.data);
-        setAdjustments(response.data);
-        setFilteredAdjustments(response.data);
+        console.log("Price Adjustments:", response.data)
+        setAdjustments(response.data)
+        setFilteredAdjustments(response.data)
       })
       .catch((error) => {
-        toast.error("Lỗi khi tải dữ liệu điều chỉnh giá");
+        toast.error("Lỗi khi tải dữ liệu điều chỉnh giá")
       })
-      .finally(() => setLoading(false));
-  };
+      .finally(() => setLoading(false))
+  }
 
   const fetchAdjustmentsBySeatType = (seatTypeId) => {
-    setLoading(true);
+    setLoading(true)
     axios
       .get(`http://localhost:8080/api/admin/price-adjustments/by-seat-type/${seatTypeId}`)
       .then((response) => {
-        console.log("Adjustments by seat type:", response.data);
-        setAdjustments(response.data);
-        setFilteredAdjustments(response.data);
+        console.log("Adjustments by seat type:", response.data)
+        setAdjustments(response.data)
+        setFilteredAdjustments(response.data)
       })
       .catch((error) => {
-        toast.error("Lỗi khi tải dữ liệu điều chỉnh giá theo loại ghế");
+        toast.error("Lỗi khi tải dữ liệu điều chỉnh giá theo loại ghế")
       })
-      .finally(() => setLoading(false));
-  };
+      .finally(() => setLoading(false))
+  }
 
   const checkAdjustmentActive = (adjustmentId) => {
     return axios
       .get(`http://localhost:8080/api/admin/price-adjustments/${adjustmentId}/is-active`)
       .then((response) => {
-        return response.data;
+        return response.data
       })
       .catch((error) => {
-        toast.error("Lỗi khi kiểm tra trạng thái hoạt động");
-        return false;
-      });
-  };
+        toast.error("Lỗi khi kiểm tra trạng thái hoạt động")
+        return false
+      })
+  }
 
   const filterAdjustments = () => {
-    let filtered = [...adjustments];
+    let filtered = [...adjustments]
 
     if (searchTerm) {
       filtered = filtered.filter((adjustment) =>
-        adjustment.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+        adjustment.description.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
     }
 
     if (selectedTimeType !== "all") {
       filtered = filtered.filter((adjustment) =>
-        selectedTimeType === "dayOfWeek" ? adjustment.dayOfWeek : adjustment.specificDate
-      );
+        selectedTimeType === "dayOfWeek" ? adjustment.dayOfWeek : adjustment.specificDate,
+      )
     }
 
-    setFilteredAdjustments(filtered);
-  };
+    setFilteredAdjustments(filtered)
+  }
 
   const handleSeatTypeChange = (event) => {
-    const seatTypeId = event.target.value;
-    setSelectedSeatType(seatTypeId);
+    const seatTypeId = event.target.value
+    setSelectedSeatType(seatTypeId)
 
     if (seatTypeId === "all") {
-      fetchAdjustments();
+      fetchAdjustments()
     } else {
-      fetchAdjustmentsBySeatType(seatTypeId);
+      fetchAdjustmentsBySeatType(seatTypeId)
     }
-  };
+  }
 
   const handleTimeTypeFilterChange = (event) => {
-    setSelectedTimeType(event.target.value);
-  };
+    setSelectedTimeType(event.target.value)
+  }
 
   const handleAddAdjustment = () => {
     const payload = {
@@ -229,90 +220,94 @@ const PriceAdjustmentManagement = () => {
       description: formData.description,
       priceIncrease: Number(formData.priceIncrease),
       isActive: formData.isActive,
-      ...(formData.timeType === "dayOfWeek" && { dayOfWeek: formData.dayOfWeek ? toEnglishDay(formData.dayOfWeek) : "" }),
+      ...(formData.timeType === "dayOfWeek" && {
+        dayOfWeek: formData.dayOfWeek ? toEnglishDay(formData.dayOfWeek) : "",
+      }),
       ...(formData.timeType === "specificDate" && {
         specificDate: formData.specificDate
           ? `${formData.specificDate.getFullYear()}-${String(formData.specificDate.getMonth() + 1).padStart(2, "0")}-${String(formData.specificDate.getDate()).padStart(2, "0")}`
           : null,
       }),
-    };
+    }
 
     axios
       .post("http://localhost:8080/api/admin/price-adjustments", payload)
       .then((response) => {
-        setAdjustments([...adjustments, response.data.data]);
-        toast.success("Thêm điều chỉnh giá thành công");
-        setAddDialogOpen(false);
-        resetFormData();
+        setAdjustments([...adjustments, response.data.data])
+        toast.success("Thêm điều chỉnh giá thành công")
+        setAddDialogOpen(false)
+        resetFormData()
       })
       .catch((error) => {
-        toast.error("Lỗi khi thêm điều chỉnh giá: " + (error.response?.data?.message || error.message));
-      });
-  };
+        toast.error("Lỗi khi thêm điều chỉnh giá: " + (error.response?.data?.message || error.message))
+      })
+  }
 
   const handleEditAdjustment = () => {
-    if (!currentAdjustment) return;
+    if (!currentAdjustment) return
 
     const payload = {
       seatTypeId: formData.seatTypeId,
       description: formData.description,
       priceIncrease: Number(formData.priceIncrease),
       isActive: formData.isActive,
-      ...(formData.timeType === "dayOfWeek" && { dayOfWeek: formData.dayOfWeek ? toEnglishDay(formData.dayOfWeek) : "" }),
+      ...(formData.timeType === "dayOfWeek" && {
+        dayOfWeek: formData.dayOfWeek ? toEnglishDay(formData.dayOfWeek) : "",
+      }),
       ...(formData.timeType === "specificDate" && {
         specificDate: formData.specificDate
           ? `${formData.specificDate.getFullYear()}-${String(formData.specificDate.getMonth() + 1).padStart(2, "0")}-${String(formData.specificDate.getDate()).padStart(2, "0")}`
           : null,
       }),
-    };
+    }
 
     axios
       .put(`http://localhost:8080/api/admin/price-adjustments/${currentAdjustment.adjustmentId}`, payload)
       .then((response) => {
         const updatedAdjustments = adjustments.map((a) =>
-          a.adjustmentId === currentAdjustment.adjustmentId ? response.data : a
-        );
-        setAdjustments(updatedAdjustments);
-        toast.success("Cập nhật điều chỉnh giá thành công");
-        setEditDialogOpen(false);
+          a.adjustmentId === currentAdjustment.adjustmentId ? response.data : a,
+        )
+        setAdjustments(updatedAdjustments)
+        toast.success("Cập nhật điều chỉnh giá thành công")
+        setEditDialogOpen(false)
       })
       .catch((error) => {
-        toast.error("Lỗi khi cập nhật điều chỉnh giá: " + (error.response?.data?.message || error.message));
-      });
-  };
+        toast.error("Lỗi khi cập nhật điều chỉnh giá: " + (error.response?.data?.message || error.message))
+      })
+  }
 
-    const handleToggleActive = async (adjustment) => {
+  const handleToggleActive = async (adjustment) => {
     const updatedAdjustment = {
-        seatTypeId: adjustment.seatTypeId,
-        description: adjustment.description,
-        priceIncrease: adjustment.priceIncrease,
-        isActive: !adjustment.isActive,
-        ...(adjustment.dayOfWeek && { dayOfWeek: adjustment.dayOfWeek }),
-        ...(adjustment.specificDate && { specificDate: adjustment.specificDate }),
-    };
+      seatTypeId: adjustment.seatTypeId,
+      description: adjustment.description,
+      priceIncrease: adjustment.priceIncrease,
+      isActive: !adjustment.isActive,
+      ...(adjustment.dayOfWeek && { dayOfWeek: adjustment.dayOfWeek }),
+      ...(adjustment.specificDate && { specificDate: adjustment.specificDate }),
+    }
 
     try {
-        const response = await axios.put(
+      const response = await axios.put(
         `http://localhost:8080/api/admin/price-adjustments/${adjustment.adjustmentId}`,
-        updatedAdjustment
-        );
-        const updatedAdjustments = adjustments.map((a) =>
-        a.adjustmentId === adjustment.adjustmentId ? response.data : a
-        );
-        setAdjustments(updatedAdjustments);
-        filterAdjustments(); // Cập nhật filteredAdjustments
-        toast.success(`Điều chỉnh giá đã được ${!adjustment.isActive ? "kích hoạt" : "vô hiệu hóa"}`);
+        updatedAdjustment,
+      )
+      const updatedAdjustments = adjustments.map((a) =>
+        a.adjustmentId === adjustment.adjustmentId ? response.data : a,
+      )
+      setAdjustments(updatedAdjustments)
+      filterAdjustments() // Cập nhật filteredAdjustments
+      toast.success(`Điều chỉnh giá đã được ${!adjustment.isActive ? "kích hoạt" : "vô hiệu hóa"}`)
     } catch (error) {
-        console.error("Lỗi khi cập nhật trạng thái:", error.response?.data || error.message);
-        toast.error("Lỗi khi cập nhật trạng thái điều chỉnh giá: " + (error.response?.data?.message || error.message));
+      console.error("Lỗi khi cập nhật trạng thái:", error.response?.data || error.message)
+      toast.error("Lỗi khi cập nhật trạng thái điều chỉnh giá: " + (error.response?.data?.message || error.message))
     }
-    };
+  }
 
   const openEditDialog = async (adjustment) => {
-    setCurrentAdjustment(adjustment);
+    setCurrentAdjustment(adjustment)
 
-    const isActive = await checkAdjustmentActive(adjustment.adjustmentId);
-    setIsAdjustmentActive(isActive);
+    const isActive = await checkAdjustmentActive(adjustment.adjustmentId)
+    setIsAdjustmentActive(isActive)
 
     setFormData({
       seatTypeId: adjustment.seatTypeId,
@@ -322,10 +317,10 @@ const PriceAdjustmentManagement = () => {
       priceIncrease: adjustment.priceIncrease,
       isActive: adjustment.isActive,
       timeType: adjustment.specificDate ? "specificDate" : "dayOfWeek",
-    });
+    })
 
-    setEditDialogOpen(true);
-  };
+    setEditDialogOpen(true)
+  }
 
   const resetFormData = () => {
     setFormData({
@@ -336,73 +331,84 @@ const PriceAdjustmentManagement = () => {
       priceIncrease: 0,
       isActive: true,
       timeType: "dayOfWeek",
-    });
-  };
+    })
+  }
 
   const handleInputChange = (e) => {
-    const { name, value, checked } = e.target;
+    const { name, value, checked } = e.target
     setFormData({
       ...formData,
       [name]: name === "isActive" ? checked : value,
-    });
-  };
+    })
+  }
 
   const handleDateChange = (name, date) => {
     setFormData({
       ...formData,
       [name]: date,
       dayOfWeek: "",
-    });
-  };
+    })
+  }
 
   const handleTimeTypeChange = (event) => {
-    const value = event.target.value;
+    const value = event.target.value
     setFormData((prev) => ({
       ...prev,
       timeType: value,
       ...(value === "dayOfWeek" ? { specificDate: null } : { dayOfWeek: "" }),
-    }));
-  };
+    }))
+  }
 
   const isExpired = (specificDate) => {
-    return specificDate && new Date(specificDate) < new Date("2025-05-23T11:52:00+07:00");
-  };
+    return specificDate && new Date(specificDate) < new Date("2025-05-23T11:52:00+07:00")
+  }
 
   const isActiveToday = (specificDate, dayOfWeek) => {
-    const now = new Date("2025-05-23T11:52:00+07:00");
-    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const today = dayNames[now.getDay()];
+    const now = new Date("2025-05-23T11:52:00+07:00")
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    const today = dayNames[now.getDay()]
 
     if (specificDate) {
-      const adjustmentDate = new Date(specificDate);
-      return adjustmentDate.toDateString() === now.toDateString();
+      const adjustmentDate = new Date(specificDate)
+      return adjustmentDate.toDateString() === now.toDateString()
     } else if (dayOfWeek) {
-      return dayOfWeek === today;
+      return dayOfWeek === today
     }
-    return false;
-  };
+    return false
+  }
 
-  const activeAdjustments = adjustments.filter((a) => a.isActive).length;
-  const expiredAdjustments = adjustments.filter((a) => a.specificDate && isExpired(a.specificDate)).length;
+  const activeAdjustments = adjustments.filter((a) => a.isActive).length
+  const expiredAdjustments = adjustments.filter((a) => a.specificDate && isExpired(a.specificDate)).length
 
   const getGradientColor = (priceIncrease) => {
-    if (priceIncrease >= 500) {
-      return "linear-gradient(135deg, #D500F9, #651FFF)";
-    } else if (priceIncrease >= 200) {
-      return "linear-gradient(135deg, #00E676, #00B0FF)";
+    if (Math.abs(priceIncrease) >= 50000) {
+      return "linear-gradient(135deg, #D500F9, #651FFF)"
+    } else if (Math.abs(priceIncrease) >= 20000) {
+      return "linear-gradient(135deg, #00E676, #00B0FF)"
     } else {
-      return "linear-gradient(135deg, #FF9100, #FF5252)";
+      return "linear-gradient(135deg, #FF9100, #FF5252)"
     }
-  };
+  }
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString("vi-VN", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-    });
-  };
+    })
+  }
+
+  // Format price for display in avatar (show as "k" format)
+  const formatPriceForAvatar = (priceIncrease) => {
+    const absValue = Math.abs(priceIncrease)
+    if (absValue >= 1000) {
+      const sign = priceIncrease < 0 ? "-" : "+"
+      return `${sign}${Math.floor(absValue / 1000)}k`
+    }
+    const sign = priceIncrease < 0 ? "-" : "+"
+    return `${sign}${absValue}`
+  }
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -450,8 +456,8 @@ const PriceAdjustmentManagement = () => {
               variant="contained"
               startIcon={<Add />}
               onClick={() => {
-                resetFormData();
-                setAddDialogOpen(true);
+                resetFormData()
+                setAddDialogOpen(true)
               }}
               sx={{
                 borderRadius: 2,
@@ -469,48 +475,102 @@ const PriceAdjustmentManagement = () => {
 
         <Grid container spacing={3} mb={4}>
           <Grid item xs={12} md={4}>
-            <Card sx={{ borderRadius: 3, bgcolor: "#1e1e1e", boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)", "&:hover": { transform: "translateY(-5px)", transition: "transform 0.3s ease" } }}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                bgcolor: "#1e1e1e",
+                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)",
+                "&:hover": { transform: "translateY(-5px)", transition: "transform 0.3s ease" },
+              }}
+            >
               <Box sx={{ height: 5, bgcolor: "#8e24aa" }} />
               <CardContent sx={{ p: 3 }}>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar sx={{ bgcolor: "rgba(142, 36, 170, 0.9)", width: 60, height: 60, boxShadow: "0 4px 14px rgba(142, 36, 170, 0.4)" }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "rgba(142, 36, 170, 0.9)",
+                      width: 60,
+                      height: 60,
+                      boxShadow: "0 4px 14px rgba(142, 36, 170, 0.4)",
+                    }}
+                  >
                     <LocalOffer sx={{ fontSize: 30 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h3" fontWeight="bold">{adjustments.length}</Typography>
-                    <Typography variant="body1" color="text.secondary">Tổng Điều Chỉnh</Typography>
+                    <Typography variant="h3" fontWeight="bold">
+                      {adjustments.length}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Tổng Điều Chỉnh
+                    </Typography>
                   </Box>
                 </Stack>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card sx={{ borderRadius: 3, bgcolor: "#1e1e1e", boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)", "&:hover": { transform: "translateY(-5px)", transition: "transform 0.3s ease" } }}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                bgcolor: "#1e1e1e",
+                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)",
+                "&:hover": { transform: "translateY(-5px)", transition: "transform 0.3s ease" },
+              }}
+            >
               <Box sx={{ height: 5, bgcolor: "#00bcd4" }} />
               <CardContent sx={{ p: 3 }}>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar sx={{ bgcolor: "rgba(0, 188, 212, 0.9)", width: 60, height: 60, boxShadow: "0 4px 14px rgba(0, 188, 212, 0.4)" }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "rgba(0, 188, 212, 0.9)",
+                      width: 60,
+                      height: 60,
+                      boxShadow: "0 4px 14px rgba(0, 188, 212, 0.4)",
+                    }}
+                  >
                     <AttachMoney sx={{ fontSize: 30 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h3" fontWeight="bold">{activeAdjustments}</Typography>
-                    <Typography variant="body1" color="text.secondary">Điều Chỉnh Đang Hoạt Động</Typography>
+                    <Typography variant="h3" fontWeight="bold">
+                      {activeAdjustments}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Điều Chỉnh Đang Hoạt Động
+                    </Typography>
                   </Box>
                 </Stack>
               </CardContent>
             </Card>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Card sx={{ borderRadius: 3, bgcolor: "#1e1e1e", boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)", "&:hover": { transform: "translateY(-5px)", transition: "transform 0.3s ease" } }}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                bgcolor: "#1e1e1e",
+                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.35)",
+                "&:hover": { transform: "translateY(-5px)", transition: "transform 0.3s ease" },
+              }}
+            >
               <Box sx={{ height: 5, bgcolor: "#ff5252" }} />
               <CardContent sx={{ p: 3 }}>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar sx={{ bgcolor: "rgba(255, 82, 82, 0.9)", width: 60, height: 60, boxShadow: "0 4px 14px rgba(255, 82, 82, 0.4)" }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: "rgba(255, 82, 82, 0.9)",
+                      width: 60,
+                      height: 60,
+                      boxShadow: "0 4px 14px rgba(255, 82, 82, 0.4)",
+                    }}
+                  >
                     <CalendarMonth sx={{ fontSize: 30 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="h3" fontWeight="bold">{expiredAdjustments}</Typography>
-                    <Typography variant="body1" color="text.secondary">Điều Chỉnh Hết Hạn Chỉnh Sửa</Typography>
+                    <Typography variant="h3" fontWeight="bold">
+                      {expiredAdjustments}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Điều Chỉnh Hết Hạn Chỉnh Sửa
+                    </Typography>
                   </Box>
                 </Stack>
               </CardContent>
@@ -520,7 +580,16 @@ const PriceAdjustmentManagement = () => {
 
         <Grid container spacing={3} mb={4}>
           <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 1.5, borderRadius: 3, display: "flex", alignItems: "center", bgcolor: "#1e1e1e", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)" }}>
+            <Paper
+              sx={{
+                p: 1.5,
+                borderRadius: 3,
+                display: "flex",
+                alignItems: "center",
+                bgcolor: "#1e1e1e",
+                boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
+              }}
+            >
               <Search sx={{ mx: 1.5, color: "#8e24aa" }} />
               <TextField
                 fullWidth
@@ -533,7 +602,16 @@ const PriceAdjustmentManagement = () => {
             </Paper>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 1.5, borderRadius: 3, display: "flex", alignItems: "center", bgcolor: "#1e1e1e", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)" }}>
+            <Paper
+              sx={{
+                p: 1.5,
+                borderRadius: 3,
+                display: "flex",
+                alignItems: "center",
+                bgcolor: "#1e1e1e",
+                boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
+              }}
+            >
               <FilterList sx={{ mx: 1.5, color: "#00bcd4" }} />
               <FormControl fullWidth variant="standard">
                 <Select
@@ -554,7 +632,16 @@ const PriceAdjustmentManagement = () => {
             </Paper>
           </Grid>
           <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 1.5, borderRadius: 3, display: "flex", alignItems: "center", bgcolor: "#1e1e1e", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)" }}>
+            <Paper
+              sx={{
+                p: 1.5,
+                borderRadius: 3,
+                display: "flex",
+                alignItems: "center",
+                bgcolor: "#1e1e1e",
+                boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
+              }}
+            >
               <FilterList sx={{ mx: 1.5, color: "#00bcd4" }} />
               <FormControl fullWidth variant="standard">
                 <Select
@@ -582,7 +669,15 @@ const PriceAdjustmentManagement = () => {
           </Box>
         ) : filteredAdjustments.length === 0 ? (
           <Fade in={!loading}>
-            <Paper sx={{ p: 5, textAlign: "center", borderRadius: 3, bgcolor: "#1e1e1e", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)" }}>
+            <Paper
+              sx={{
+                p: 5,
+                textAlign: "center",
+                borderRadius: 3,
+                bgcolor: "#1e1e1e",
+                boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
+              }}
+            >
               <LocalOffer sx={{ fontSize: 80, color: "#666", mb: 3 }} />
               <Typography variant="h5" fontWeight="bold" gutterBottom>
                 Không tìm thấy điều chỉnh giá
@@ -594,26 +689,38 @@ const PriceAdjustmentManagement = () => {
           </Fade>
         ) : (
           <Fade in={!loading}>
-            <TableContainer component={Paper} sx={{ borderRadius: 3, overflow: "hidden", bgcolor: "#1e1e1e", boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)" }}>
+            <TableContainer
+              component={Paper}
+              sx={{
+                borderRadius: 3,
+                overflow: "hidden",
+                bgcolor: "#1e1e1e",
+                boxShadow: "0 6px 16px rgba(0, 0, 0, 0.2)",
+              }}
+            >
               <Table>
                 <TableHead>
                   <TableRow sx={{ bgcolor: "rgba(142, 36, 170, 0.15)" }}>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", py: 2, width: "15%" }}>Tăng/Giảm Giá</TableCell>
+                    <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", py: 2, width: "15%" }}>
+                      Tăng/Giảm Giá
+                    </TableCell>
                     <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "15%" }}>Loại Ghế</TableCell>
                     <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "15%" }}>Thời Gian</TableCell>
                     <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "35%" }}>Mô Tả</TableCell>
                     <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "15%" }}>Trạng Thái</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: "bold", fontSize: "1rem", width: "10%" }}>Thao Tác</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: "bold", fontSize: "1rem", width: "10%" }}>
+                      Thao Tác
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredAdjustments.map((adjustment) => {
-                    const seatType = seatTypes.find((st) => st.id === adjustment.seatTypeId);
-                    const seatTypeName = seatType ? seatType.name : "Không xác định";
-                    const isActive = isActiveToday(adjustment.specificDate, adjustment.dayOfWeek);
-                    const isExpiredStatus = adjustment.specificDate && isExpired(adjustment.specificDate);
-                    const displayAmount = Math.abs(adjustment.priceIncrease);
-                    const isDecrease = adjustment.priceIncrease < 0;
+                    const seatType = seatTypes.find((st) => st.id === adjustment.seatTypeId)
+                    const seatTypeName = seatType ? seatType.name : "Không xác định"
+                    const isActive = isActiveToday(adjustment.specificDate, adjustment.dayOfWeek)
+                    const isExpiredStatus = adjustment.specificDate && isExpired(adjustment.specificDate)
+                    const displayAmount = Math.abs(adjustment.priceIncrease)
+                    const isDecrease = adjustment.priceIncrease < 0
 
                     return (
                       <TableRow
@@ -634,10 +741,12 @@ const PriceAdjustmentManagement = () => {
                                 boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
                               }}
                             >
-                              {adjustment.priceIncrease} 
+                              {formatPriceForAvatar(adjustment.priceIncrease)}
                             </Avatar>
                             <Box>
-                              <Typography fontWeight="bold">{isDecrease ? "Giảm" : "Tăng"} {displayAmount}kVNĐ</Typography>
+                              <Typography fontWeight="bold">
+                                {isDecrease ? "Giảm" : "Tăng"} {displayAmount.toLocaleString("vi-VN")} vnđ
+                              </Typography>
                             </Box>
                           </Stack>
                         </TableCell>
@@ -656,20 +765,36 @@ const PriceAdjustmentManagement = () => {
                         </TableCell>
                         <TableCell>
                           <Stack spacing={0.5}>
-                            {adjustment.specificDate && <Typography variant="body2">Ngày: {formatDate(adjustment.specificDate)}</Typography>}
-                            {adjustment.dayOfWeek && <Typography variant="body2">Ngày: {toVietnameseDay(adjustment.dayOfWeek)}</Typography>}
+                            {adjustment.specificDate && (
+                              <Typography variant="body2">Ngày: {formatDate(adjustment.specificDate)}</Typography>
+                            )}
+                            {adjustment.dayOfWeek && (
+                              <Typography variant="body2">Ngày: {toVietnameseDay(adjustment.dayOfWeek)}</Typography>
+                            )}
                             {isActive && (
                               <Chip
                                 label="Đang áp dụng"
                                 size="small"
-                                sx={{ bgcolor: "rgba(0, 128, 0, 0.15)", color: "#00FF00", fontSize: "0.7rem", height: 20, mt: 0.5 }}
+                                sx={{
+                                  bgcolor: "rgba(0, 128, 0, 0.15)",
+                                  color: "#00FF00",
+                                  fontSize: "0.7rem",
+                                  height: 20,
+                                  mt: 0.5,
+                                }}
                               />
                             )}
                             {!isActive && isExpiredStatus && (
                               <Chip
                                 label="Đã hết hạn"
                                 size="small"
-                                sx={{ bgcolor: "rgba(255, 82, 82, 0.15)", color: "#ff5252", fontSize: "0.7rem", height: 20, mt: 0.5 }}
+                                sx={{
+                                  bgcolor: "rgba(255, 82, 82, 0.15)",
+                                  color: "#ff5252",
+                                  fontSize: "0.7rem",
+                                  height: 20,
+                                  mt: 0.5,
+                                }}
                               />
                             )}
                           </Stack>
@@ -679,7 +804,13 @@ const PriceAdjustmentManagement = () => {
                         </TableCell>
                         <TableCell>
                           <FormControlLabel
-                            control={<Switch checked={adjustment.isActive} onChange={() => handleToggleActive(adjustment)} color="primary" />}
+                            control={
+                              <Switch
+                                checked={adjustment.isActive}
+                                onChange={() => handleToggleActive(adjustment)}
+                                color="primary"
+                              />
+                            }
                             label={adjustment.isActive ? "Đang hoạt động" : "Đã tắt"}
                             sx={{ m: 0 }}
                           />
@@ -701,7 +832,7 @@ const PriceAdjustmentManagement = () => {
                           </Tooltip>
                         </TableCell>
                       </TableRow>
-                    );
+                    )
                   })}
                 </TableBody>
               </Table>
@@ -717,31 +848,37 @@ const PriceAdjustmentManagement = () => {
           PaperProps={{ sx: { borderRadius: 3, bgcolor: "#1e1e1e", boxShadow: "0 10px 25px rgba(0, 0, 0, 0.4)" } }}
         >
           <DialogTitle sx={{ pb: 1 }}>
-            <Typography variant="h6" fontWeight="bold">Thêm Điều Chỉnh Giá Mới</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              Thêm Điều Chỉnh Giá Mới
+            </Typography>
           </DialogTitle>
           <DialogContent>
             <Grid container spacing={3} sx={{ mt: 2 }}>
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label="Tăng/Giảm giá (kVNĐ)"
+                  label="Tăng/Giảm giá"
                   name="priceIncrease"
                   type="number"
                   value={formData.priceIncrease}
                   onChange={handleInputChange}
-                  InputProps={{ endAdornment: <InputAdornment position="end">kVNĐ</InputAdornment> }}
+                  InputProps={{ endAdornment: <InputAdornment position="end">vnđ</InputAdornment> }}
                   sx={{ mb: 3 }}
                 />
                 <FormControl fullWidth sx={{ mb: 3 }}>
                   <InputLabel>Loại ghế</InputLabel>
                   <Select name="seatTypeId" value={formData.seatTypeId} onChange={handleInputChange} label="Loại ghế">
                     {seatTypes.map((seatType) => (
-                      <MenuItem key={seatType.id} value={seatType.id}>{seatType.name}</MenuItem>
+                      <MenuItem key={seatType.id} value={seatType.id}>
+                        {seatType.name}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
                 <FormControl component="fieldset" sx={{ mb: 3 }}>
-                  <Typography variant="subtitle1" sx={{ mb: 1 }}>Chọn loại thời gian</Typography>
+                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                    Chọn loại thời gian
+                  </Typography>
                   <RadioGroup row name="timeType" value={formData.timeType} onChange={handleTimeTypeChange}>
                     <RadioFormControlLabel value="dayOfWeek" control={<Radio />} label="Ngày trong tuần" />
                     <RadioFormControlLabel value="specificDate" control={<Radio />} label="Ngày cụ thể" />
@@ -750,10 +887,17 @@ const PriceAdjustmentManagement = () => {
                 {formData.timeType === "dayOfWeek" && (
                   <FormControl fullWidth sx={{ mb: 3 }}>
                     <InputLabel>Ngày trong tuần</InputLabel>
-                    <Select name="dayOfWeek" value={formData.dayOfWeek} onChange={handleInputChange} label="Ngày trong tuần">
+                    <Select
+                      name="dayOfWeek"
+                      value={formData.dayOfWeek}
+                      onChange={handleInputChange}
+                      label="Ngày trong tuần"
+                    >
                       <MenuItem value="">Không chọn</MenuItem>
                       {Object.keys(dayMapping).map((day) => (
-                        <MenuItem key={day} value={toVietnameseDay(day)}>{toVietnameseDay(day)}</MenuItem>
+                        <MenuItem key={day} value={toVietnameseDay(day)}>
+                          {toVietnameseDay(day)}
+                        </MenuItem>
                       ))}
                     </Select>
                   </FormControl>
@@ -770,7 +914,9 @@ const PriceAdjustmentManagement = () => {
                   </LocalizationProvider>
                 )}
                 <FormControlLabel
-                  control={<Switch checked={formData.isActive} onChange={handleInputChange} name="isActive" color="primary" />}
+                  control={
+                    <Switch checked={formData.isActive} onChange={handleInputChange} name="isActive" color="primary" />
+                  }
                   label="Kích hoạt điều chỉnh"
                   sx={{ mb: 3 }}
                 />
@@ -790,8 +936,12 @@ const PriceAdjustmentManagement = () => {
             </Grid>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
-            <Button onClick={() => setAddDialogOpen(false)} variant="outlined" sx={{ borderRadius: 2 }}>Hủy</Button>
-            <Button onClick={handleAddAdjustment} color="primary" variant="contained" sx={{ borderRadius: 2 }}>Thêm Điều Chỉnh</Button>
+            <Button onClick={() => setAddDialogOpen(false)} variant="outlined" sx={{ borderRadius: 2 }}>
+              Hủy
+            </Button>
+            <Button onClick={handleAddAdjustment} color="primary" variant="contained" sx={{ borderRadius: 2 }}>
+              Thêm Điều Chỉnh
+            </Button>
           </DialogActions>
         </Dialog>
 
@@ -803,13 +953,24 @@ const PriceAdjustmentManagement = () => {
           PaperProps={{ sx: { borderRadius: 3, bgcolor: "#1e1e1e", boxShadow: "0 10px 25px rgba(0, 0, 0, 0.4)" } }}
         >
           <DialogTitle sx={{ pb: 1 }}>
-            <Typography variant="h6" fontWeight="bold">Chỉnh Sửa Điều Chỉnh Giá</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              Chỉnh Sửa Điều Chỉnh Giá
+            </Typography>
           </DialogTitle>
           <DialogContent>
             <Grid container spacing={3} sx={{ mt: 2 }}>
               <Grid item xs={12} md={6}>
                 {isAdjustmentActive && (
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2, bgcolor: "rgba(255, 82, 82, 0.15)", p: 1, borderRadius: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mb: 2,
+                      bgcolor: "rgba(255, 82, 82, 0.15)",
+                      p: 1,
+                      borderRadius: 1,
+                    }}
+                  >
                     <Info sx={{ color: "#ff5252", mr: 1 }} />
                     <Typography variant="body2" color="#ff5252">
                       Điều chỉnh giá này đã đến hoặc quá ngày áp dụng, chỉ có thể chỉnh sửa trạng thái
@@ -818,37 +979,69 @@ const PriceAdjustmentManagement = () => {
                 )}
                 <TextField
                   fullWidth
-                  label="Tăng/Giảm giá (kVNĐ)"
+                  label="Tăng/Giảm giá"
                   name="priceIncrease"
                   type="number"
                   value={formData.priceIncrease}
                   onChange={handleInputChange}
-                  InputProps={{ endAdornment: <InputAdornment position="end">kVNĐ</InputAdornment> }}
+                  InputProps={{ endAdornment: <InputAdornment position="end">vnđ</InputAdornment> }}
                   sx={{ mb: 3 }}
                   disabled={isAdjustmentActive}
                 />
                 <FormControl fullWidth sx={{ mb: 3 }}>
                   <InputLabel>Loại ghế</InputLabel>
-                  <Select name="seatTypeId" value={formData.seatTypeId} onChange={handleInputChange} label="Loại ghế" disabled={isAdjustmentActive}>
+                  <Select
+                    name="seatTypeId"
+                    value={formData.seatTypeId}
+                    onChange={handleInputChange}
+                    label="Loại ghế"
+                    disabled={isAdjustmentActive}
+                  >
                     {seatTypes.map((seatType) => (
-                      <MenuItem key={seatType.id} value={seatType.id}>{seatType.name}</MenuItem>
+                      <MenuItem key={seatType.id} value={seatType.id}>
+                        {seatType.name}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
                 <FormControl component="fieldset" sx={{ mb: 3 }}>
-                  <Typography variant="subtitle1" sx={{ mb: 1 }}>Chọn loại thời gian</Typography>
-                  <RadioGroup row name="timeType" value={formData.timeType} onChange={handleTimeTypeChange} disabled={true}>
-                    <RadioFormControlLabel value="dayOfWeek" control={<Radio disabled={true} />} label="Ngày trong tuần" />
-                    <RadioFormControlLabel value="specificDate" control={<Radio disabled={true} />} label="Ngày cụ thể" />
+                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                    Chọn loại thời gian
+                  </Typography>
+                  <RadioGroup
+                    row
+                    name="timeType"
+                    value={formData.timeType}
+                    onChange={handleTimeTypeChange}
+                    disabled={true}
+                  >
+                    <RadioFormControlLabel
+                      value="dayOfWeek"
+                      control={<Radio disabled={true} />}
+                      label="Ngày trong tuần"
+                    />
+                    <RadioFormControlLabel
+                      value="specificDate"
+                      control={<Radio disabled={true} />}
+                      label="Ngày cụ thể"
+                    />
                   </RadioGroup>
                 </FormControl>
                 {formData.timeType === "dayOfWeek" && (
                   <FormControl fullWidth sx={{ mb: 3 }}>
                     <InputLabel>Ngày trong tuần</InputLabel>
-                    <Select name="dayOfWeek" value={formData.dayOfWeek} onChange={handleInputChange} label="Ngày trong tuần" disabled={isAdjustmentActive}>
+                    <Select
+                      name="dayOfWeek"
+                      value={formData.dayOfWeek}
+                      onChange={handleInputChange}
+                      label="Ngày trong tuần"
+                      disabled={isAdjustmentActive}
+                    >
                       <MenuItem value="">Không chọn</MenuItem>
                       {Object.keys(dayMapping).map((day) => (
-                        <MenuItem key={day} value={toVietnameseDay(day)}>{toVietnameseDay(day)}</MenuItem>
+                        <MenuItem key={day} value={toVietnameseDay(day)}>
+                          {toVietnameseDay(day)}
+                        </MenuItem>
                       ))}
                     </Select>
                   </FormControl>
@@ -866,7 +1059,9 @@ const PriceAdjustmentManagement = () => {
                   </LocalizationProvider>
                 )}
                 <FormControlLabel
-                  control={<Switch checked={formData.isActive} onChange={handleInputChange} name="isActive" color="primary" />}
+                  control={
+                    <Switch checked={formData.isActive} onChange={handleInputChange} name="isActive" color="primary" />
+                  }
                   label="Kích hoạt điều chỉnh"
                   sx={{ mb: 3 }}
                 />
@@ -886,13 +1081,17 @@ const PriceAdjustmentManagement = () => {
             </Grid>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
-            <Button onClick={() => setEditDialogOpen(false)} variant="outlined" sx={{ borderRadius: 2 }}>Hủy</Button>
-            <Button onClick={handleEditAdjustment} color="primary" variant="contained" sx={{ borderRadius: 2 }}>Lưu Thay Đổi</Button>
+            <Button onClick={() => setEditDialogOpen(false)} variant="outlined" sx={{ borderRadius: 2 }}>
+              Hủy
+            </Button>
+            <Button onClick={handleEditAdjustment} color="primary" variant="contained" sx={{ borderRadius: 2 }}>
+              Lưu Thay Đổi
+            </Button>
           </DialogActions>
         </Dialog>
       </Box>
     </ThemeProvider>
-  );
-};
+  )
+}
 
-export default PriceAdjustmentManagement;
+export default PriceAdjustmentManagement
