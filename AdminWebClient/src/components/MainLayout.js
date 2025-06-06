@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate, Outlet, Link } from 'react-router-dom';
 import BarChartIcon from '@mui/icons-material/BarChart';
-
 
 import {
   Box,
@@ -17,7 +16,9 @@ import {
   IconButton,
   Avatar,
   Badge,
-  Collapse
+  Collapse,
+  Tooltip,
+  Button
 } from '@mui/material';
 import {
   AccountCircle,
@@ -25,7 +26,12 @@ import {
   Event as ShowtimeIcon,
   Logout as LogoutIcon,
   Menu as MenuIcon,
-  Notifications as NotificationsIcon
+  Notifications as NotificationsIcon,
+  Home as HomeIcon,
+  ExpandMore,
+  ExpandLess,
+  Person as PersonIcon,
+  Dashboard as DashboardIcon
 } from '@mui/icons-material';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
@@ -52,8 +58,6 @@ const MainLayout = () => {
   const [username, setUsername] = useState('');
   const [openAccountMenu, setOpenAccountMenu] = useState(false);
 
-
-
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -64,27 +68,60 @@ const MainLayout = () => {
   };
 
   const handleLogout = () => {
+    // Xóa thông tin người dùng trên giao diện ngay lập tức
+    setUsername('');
+    setAvatarUrl('');
+    
+    // Đóng drawer nếu đang mở
+    setOpen(false);
+    
+    // Thực hiện đăng xuất trong context
     logout();
+    
+    // Xóa token khỏi localStorage
     localStorage.removeItem('token');
+    
+    // Chuyển hướng về trang đăng nhập
     navigate('/login');
-    setAvatarUrl(user?.avatar || '');
-    setOpen(!open);
   };
 
-  // Gọi API lấy avatar khi vào trang
+  const navigateToHome = () => {
+    navigate('/');
+    setOpen(false);
+  };
+
+  const navigateToAccountDetails = () => {
+    navigate('/account');
+    setOpen(false);
+  };
+
+  // Gọi API lấy avatar khi vào trang và khi user thay đổi
   useEffect(() => {
-    const fetchAvatar = async () => {
+    const fetchUserInfo = async () => {
+      // Nếu không có token, không cần gọi API
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setUsername('');
+        setAvatarUrl('');
+        return;
+      }
+      
       try {
-        const response = await axios.get('http://localhost:8080/api/auth/me'); // Hoặc URL tương ứng của bạn
-        setAvatarUrl(response.data.avatar);
-        setUsername(response.data.fullName);
+        const response = await axios.get('http://localhost:8080/api/auth/me');
+        setAvatarUrl(response.data.avatar || '');
+        setUsername(response.data.fullName || 'User');
       } catch (error) {
-        console.error('Lỗi khi lấy avatar:', error);
+        console.error('Lỗi khi lấy thông tin người dùng:', error);
+        
+        // Nếu token hết hạn hoặc không hợp lệ, tự động đăng xuất
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          handleLogout();
+        }
       }
     };
 
-    fetchAvatar();
-  }, []);
+    fetchUserInfo();
+  }, [user]); // Dependency vào user để cập nhật khi user thay đổi
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -98,24 +135,52 @@ const MainLayout = () => {
           boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
         }}
       >
-        <Toolbar>
-          <IconButton color="inherit" edge="start" onClick={toggleDrawer} sx={{ mr: 2 }}>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Dashboard
-          </Typography>
-          {/* <IconButton color="inherit">
-            <Badge badgeContent={3} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton> */}
-          <Typography sx={{ ml: 2 }}>{username || 'No name'}</Typography>
-          <Avatar
-            sx={{ ml: 1 }}
-            alt={user?.username || 'User'}
-            src={avatarUrl}
-          />
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton color="inherit" edge="start" onClick={toggleDrawer} sx={{ mr: 2 }}>
+              <MenuIcon />
+            </IconButton>
+            
+            {/* Dashboard button giờ có chức năng điều hướng về trang chủ */}
+            <Tooltip title="Về trang chủ">
+              <Button 
+                variant="text" 
+                color="primary" 
+                // startIcon={<DashboardIcon />}
+                onClick={navigateToHome}
+                sx={{ 
+                  fontWeight: 'bold',
+                  fontSize: '1.1rem',
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: 'rgba(25, 118, 210, 0.08)'
+                  }
+                }}
+              >
+                Dashboard
+              </Button>
+            </Tooltip>
+          </Box>
+          
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography sx={{ mr: 2 }}>{username || 'Guest'}</Typography>
+            <Tooltip title="Thông tin tài khoản">
+              <IconButton onClick={navigateToAccountDetails}>
+                <Avatar
+                  sx={{ 
+                    width: 40, 
+                    height: 40,
+                    border: '2px solid',
+                    borderColor: username ? 'primary.main' : 'grey.400'
+                  }}
+                  alt={username || 'Guest'}
+                  src={avatarUrl}
+                >
+                  {!avatarUrl && (username?.charAt(0) || 'G')}
+                </Avatar>
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -140,20 +205,26 @@ const MainLayout = () => {
         <Divider sx={{ borderColor: '#34495e' }} />
 
         <List>
-          {/* <ListItem button onClick={() => handleMenuItemClick('/account')}>
-            <ListItemIcon><AccountCircle sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Tài khoản" />
+          {/* Trang chủ */}
+          <ListItem button onClick={navigateToHome}>
+            <ListItemIcon><HomeIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Trang chủ" />
           </ListItem>
-          <ListItem button onClick={() => handleMenuItemClick('/accounts/add')}>
-            <ListItemIcon><AccountCircle sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Tạo tài khoản" />
-          </ListItem> */}
+
+          {/* Thông tin cá nhân */}
+          <ListItem button onClick={navigateToAccountDetails}>
+            <ListItemIcon><PersonIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Thông tin cá nhân" />
+          </ListItem>
+
+          <Divider sx={{ borderColor: '#34495e', my: 1 }} />
+
           <ListItem button onClick={() => setOpenAccountMenu(!openAccountMenu)}>
             <ListItemIcon>
               <AccountCircle sx={{ color: 'white' }} />
             </ListItemIcon>
             <ListItemText primary="Quản lý tài khoản" />
-            {/* {openAccountMenu ? <ExpandLess sx={{ color: 'white' }} /> : <ExpandMore sx={{ color: 'white' }} />} */}
+            {openAccountMenu ? <ExpandLess sx={{ color: 'white' }} /> : <ExpandMore sx={{ color: 'white' }} />}
           </ListItem>
 
           <Collapse in={openAccountMenu} timeout="auto" unmountOnExit>
@@ -192,18 +263,10 @@ const MainLayout = () => {
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Danh sách hãng rạp chiếu phim" />
           </ListItem>
-          {/* <ListItem button onClick={() => handleMenuItemClick('/theaters')}>
-            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Theaters" />
-          </ListItem> */}
           <ListItem button onClick={() => handleMenuItemClick('/screens')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Danh sách phòng chiếu" />
           </ListItem>
-          {/* <ListItem button onClick={() => handleMenuItemClick('/test')}>
-            <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Seat Price" />
-          </ListItem> */}
           <ListItem button onClick={() => handleMenuItemClick('/foods')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Đồ ăn" />
@@ -220,10 +283,6 @@ const MainLayout = () => {
             <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Doanh thu" />
           </ListItem>
-          {/* <ListItem button onClick={() => handleMenuItemClick('/test')}>
-            <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
-            <ListItemText primary="Doanh thu" />
-          </ListItem> */}
         </List>
 
         <Divider sx={{ borderColor: '#34495e' }} />

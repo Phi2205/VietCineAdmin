@@ -3,7 +3,11 @@ package com.example.DemoAdmin.service.user;
 import com.example.DemoAdmin.dto.request.UpdateUserRequest;
 import com.example.DemoAdmin.dto.response.UserDTO;
 import com.example.DemoAdmin.entity.User;
+import com.example.DemoAdmin.entity.Voucher;
+import com.example.DemoAdmin.entity.VoucherUser;
 import com.example.DemoAdmin.repository.IUserRepository;
+import com.example.DemoAdmin.repository.IVoucherRepository;
+import com.example.DemoAdmin.repository.IVoucherUserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,10 +23,15 @@ import java.util.stream.Collectors;
 public class UserService implements IUserService {
 
     private final IUserRepository userRepository;
+    private final IVoucherRepository voucherRepository;
+    private final IVoucherUserRepository voucherUserRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(IUserRepository userRepository, IVoucherRepository voucherRepository,
+                       IVoucherUserRepository voucherUserRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.voucherRepository = voucherRepository;
+        this.voucherUserRepository = voucherUserRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -57,8 +66,19 @@ public class UserService implements IUserService {
         user.setUid(userDTO.getUid());
         user.setIdToken(userDTO.getIdToken());
 
-        user = userRepository.save(user);
-        UserDTO responseDTO = convertToUserDTO(user);
+        User savedUser = userRepository.save(user);
+
+        // Gán tất cả voucher hiện có cho user mới (bất kể trạng thái)
+        List<Voucher> vouchers = voucherRepository.findAll();
+        for (Voucher voucher : vouchers) {
+            VoucherUser voucherUser = new VoucherUser();
+            voucherUser.setVoucher(voucher);
+            voucherUser.setUser(savedUser);
+            voucherUser.setIsUsed(false);
+            voucherUserRepository.save(voucherUser);
+        }
+
+        UserDTO responseDTO = convertToUserDTO(savedUser);
         responseDTO.setPassword(null); // Don't return password in response
         return responseDTO;
     }
