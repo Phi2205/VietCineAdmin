@@ -3,8 +3,10 @@ package com.example.DemoAdmin.controller;
 import com.example.DemoAdmin.dto.request.MovieRequest;
 import com.example.DemoAdmin.dto.response.ApiResponse;
 import com.example.DemoAdmin.dto.response.MovieResponse;
+import com.example.DemoAdmin.entity.Movie;
 import com.example.DemoAdmin.service.movie.IMovieService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,5 +53,13 @@ public class MovieController {
     @GetMapping("/")
     public String home() {
         return "Welcome to DemoAdmin API!";
+    }
+
+    @GetMapping("/page")
+    public Page<MovieResponse> getMovies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return movieService.getMovieByPage(page,size);
     }
 }

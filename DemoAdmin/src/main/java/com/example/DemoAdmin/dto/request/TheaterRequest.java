@@ -8,4 +8,5 @@ public class TheaterRequest {
     private String name;
     private String address;
     private  String city;
+    private Integer theaterBrandId;
 }

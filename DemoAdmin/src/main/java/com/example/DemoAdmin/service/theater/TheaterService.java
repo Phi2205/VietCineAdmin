@@ -8,10 +8,7 @@ import com.example.DemoAdmin.dto.response.TheaterResponse;
 import com.example.DemoAdmin.entity.*;
 import com.example.DemoAdmin.mapper.IShowtimeMapper;
 import com.example.DemoAdmin.mapper.ITheaterMapper;
-import com.example.DemoAdmin.repository.IMovieRepository;
-import com.example.DemoAdmin.repository.IScreenRepository;
-import com.example.DemoAdmin.repository.IShowtimeRepository;
-import com.example.DemoAdmin.repository.ITheaterRepository;
+import com.example.DemoAdmin.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,27 +22,25 @@ public class TheaterService implements ITheaterService{
     private final ITheaterRepository theaterRepository;
     @Autowired
     private final ITheaterMapper theaterMapper;
-
+    @Autowired
+    private final ITheaterBrandRepository theaterBrandRepository;
 
 
     // Tạo suất chiếu mới
     public TheaterResponse createTheater(TheaterRequest request) {
-        // Kiểm tra movieId và screenId có tồn tại không
-
-
-        // Chuyển từ ShowtimeRequest sang Showtime entity
 
 
         Theater theater = theaterMapper.toTheater(request);
         theater.setAddress(request.getAddress());
         theater.setName(request.getName());
         theater.setCity(request.getCity());
-//        theater.setTotalScreens(request.getTotalScreens());
+        TheaterBrand theaterBrand = theaterBrandRepository.findById(request.getTheaterBrandId())
+                        .orElseThrow(()-> new RuntimeException("Not exist theater brand"));
+        theater.setTheaterBrand(theaterBrand);
         theater.setTotalScreens(0);
-        // Lưu vào database
         Theater savedTheater = theaterRepository.save(theater);
 
-        // Chuyển từ Showtime entity sang ShowtimeResponse
+
         return theaterMapper.toTheaterResponse(savedTheater);
     }
 
@@ -59,6 +54,10 @@ public class TheaterService implements ITheaterService{
         theater.setAddress(request.getAddress());
         theater.setCity(request.getCity());
 //        theater.setTotalScreens(request.getTotalScreens());
+
+        TheaterBrand theaterBrand = theaterBrandRepository.findById(request.getTheaterBrandId())
+                .orElseThrow(()-> new RuntimeException("Not exist theater brand"));
+        theater.setTheaterBrand(theaterBrand);
         Theater updatedTheater = theaterRepository.save(theater);
 
 

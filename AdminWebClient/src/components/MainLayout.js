@@ -200,7 +200,7 @@ const MainLayout = () => {
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Danh sách phòng chiếu" />
           </ListItem>
-          {/* <ListItem button onClick={() => handleMenuItemClick('/seatPrices')}>
+          {/* <ListItem button onClick={() => handleMenuItemClick('/test')}>
             <ListItemIcon><ShowtimeIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Seat Price" />
           </ListItem> */}
@@ -217,6 +217,10 @@ const MainLayout = () => {
             <ListItemText primary="Điều chỉnh giá" />
           </ListItem>
           <ListItem button onClick={() => handleMenuItemClick('/revenue')}>
+            <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
+            <ListItemText primary="Doanh thu" />
+          </ListItem>
+          <ListItem button onClick={() => handleMenuItemClick('/test')}>
             <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Doanh thu" />
           </ListItem>

@@ -19,8 +19,8 @@ import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { da, se } from "date-fns/locale";
-import { Delete } from "@mui/icons-material";
+import FullScreenLoader from "./FullScreenLoader";
+
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
@@ -32,7 +32,7 @@ const VisuallyHiddenInput = styled("input")({
   whiteSpace: "nowrap",
   width: 1,
 });
-function FoodDialog({ open, onClose, onAdd, onUpdate, edittingFood}) {
+function FoodDialog({ open, onClose, onAdd, onUpdate, edittingFood, loading}) {
   const [foodName, setFoodName] = useState("");
   const [description, setDescription] = useState("");
   const [theaterBrandId, setTheaterBrandId] = useState(null);
@@ -149,6 +149,7 @@ function FoodDialog({ open, onClose, onAdd, onUpdate, edittingFood}) {
   };
 
   const handleSubmit = async (e) => {
+    setUpdateLoading(true);
     if (!validateForm()) {
       return;
     }
@@ -191,12 +192,14 @@ function FoodDialog({ open, onClose, onAdd, onUpdate, edittingFood}) {
 
     if (edittingFood) {
       formData.append("id", edittingFood.foodId);
+
       onUpdate(formData);
       setUpdateLoading(false);
     } else {
       onAdd(formData);
       setUpdateLoading(false);
     }
+    setUpdateLoading(false);
   };
 
   const handleReset = () => {
@@ -221,7 +224,9 @@ function FoodDialog({ open, onClose, onAdd, onUpdate, edittingFood}) {
   };
 
   return (
+
     <>
+      {loading && <FullScreenLoader />}
       {updateLoading ? (
         <Box
           display="flex"
@@ -240,6 +245,7 @@ function FoodDialog({ open, onClose, onAdd, onUpdate, edittingFood}) {
           </Typography>
         </Box>
       ) : (
+        
         <Dialog
           open={open}
           onClose={onClose}
@@ -248,6 +254,7 @@ function FoodDialog({ open, onClose, onAdd, onUpdate, edittingFood}) {
           PaperProps={{ sx: { borderRadius: 3, padding: 0 } }}
         >
           {/* Title */}
+          
           <DialogTitle
             sx={{
               background: "linear-gradient(to right, #f97316, #ef4444)",

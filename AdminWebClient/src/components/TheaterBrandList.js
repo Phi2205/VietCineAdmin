@@ -172,7 +172,7 @@ function AddTheaterBrandDialog({
     if (logo) formData.append("logo", logo);
 
     if (editingBrand) {
-      formData.append("id", editingBrand.id); 
+      formData.append("id", editingBrand.id);
       onUpdate(formData);
     } else {
       onAdd(formData);
@@ -362,26 +362,30 @@ const TheaterList = () => {
       .finally(() => setLoading(false));
   };
 
-const loadAllTheaters = async () => {
-  try {
-    setLoading(true); 
+  const loadAllTheaters = async () => {
+    try {
+      setLoading(true);
 
-    const response = await axios.get("http://localhost:8080/api/admin/theaters");
+      const response = await axios.get(
+        "http://localhost:8080/api/admin/theaters"
+      );
 
-    setTheaters(response.data);
-    setFilteredTheaters(response.data);
-  } catch (error) {
-    toast.error("Lỗi khi tải dữ liệu rạp chiếu phim");
-  } finally {
-    setLoading(false);
-  }
-};
+      setTheaters(response.data);
+      setFilteredTheaters(response.data);
+    } catch (error) {
+      toast.error("Lỗi khi tải dữ liệu rạp chiếu phim");
+    } finally {
+      setLoading(false);
+    }
+  };
   const LoadingTheaterByTheaterBrand = (theaterBrandId) => {
     console.log("đang load theater brand ", theaterBrandId);
     setIdBrand(theaterBrandId);
     setLoading(true);
     axios
-      .get(`http://localhost:8080/api/admin/theaters/theaterbrands/${theaterBrandId}` )
+      .get(
+        `http://localhost:8080/api/admin/theaters/theaterbrands/${theaterBrandId}`
+      )
       .then((response) => {
         setTheaters(response.data);
         setFilteredTheaters(response.data);
@@ -390,12 +394,12 @@ const loadAllTheaters = async () => {
         toast.error("Lỗi khi tải dữ liệu rạp chiếu phim");
       })
       .finally(() => setLoading(false));
-  }
+  };
 
   const updateTheaterBrand = () => {
     if (openUpdateTheaterBrand) {
-    setOpenUpdateTheaterBrand(false);
-    }else {
+      setOpenUpdateTheaterBrand(false);
+    } else {
       setOpenUpdateTheaterBrand(true);
     }
   };
@@ -611,7 +615,7 @@ const loadAllTheaters = async () => {
           </Box>
 
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-          <Card
+            <Card
               sx={{
                 width: 120,
                 height: 120,
@@ -621,8 +625,9 @@ const loadAllTheaters = async () => {
                 cursor: "pointer",
                 position: "relative",
                 transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                border: (null === idBrand) ? "5px solid rgb(206, 26, 26)" : "none",
-                transform: (null === idBrand) ? "translateY(-4px)" : "none",
+                border:
+                  null === idBrand ? "5px solid rgb(206, 26, 26)" : "none",
+                transform: null === idBrand ? "translateY(-4px)" : "none",
                 display: "flex",
                 // pointerEvents: openUpdateTheaterBrand ? "none" : "auto",
                 alignItems: "center",
@@ -639,34 +644,34 @@ const loadAllTheaters = async () => {
                 loadAllTheaters();
               }}
             >
-                <CardMedia
-                  component="img"
-                  image={'https://res.cloudinary.com/dxiuxuivf/image/upload/v1748935291/vietcine/logo_theater_brand_CGV.png'}
-                  alt={"Tất cả phim"}
-                  sx={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
-                                <Box
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    width: "100%",
-                    bgcolor: "rgba(0, 0, 0, 0.6)",
-                    color: "#90caf9",
-                    py: 0.6,
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    fontSize: 14,
-                    textTransform: "uppercase",
-                    letterSpacing: 1,
-                    backdropFilter: "blur(5px)",
-                  }}
-                >
-                  Tất cả
-                </Box>
+              <CardMedia
+                component="img"
+                image={"logobrand.png"}
+                alt={"Tất cả phim"}
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: 0,
+                  width: "100%",
+                  bgcolor: "rgba(0, 0, 0, 0.6)",
+                  color: "#90caf9",
+                  py: 0.6,
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  fontSize: 14,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  backdropFilter: "blur(5px)",
+                }}
+              >
+                Tất cả
+              </Box>
             </Card>
             {theaterBrands.map((brand) => (
               <Card
@@ -684,9 +689,12 @@ const loadAllTheaters = async () => {
                   boxShadow: "0 8px 20px rgba(25, 118, 210, 0.3)",
                   cursor: "pointer",
                   position: "relative",
-                  border: (brand.id === idBrand) ? "5px solid rgb(206, 26, 26)" : "none",
+                  border:
+                    brand.id === idBrand
+                      ? "5px solid rgb(206, 26, 26)"
+                      : "none",
                   //   pointerEvents: openUpdateTheaterBrand ? "none" : "auto",
-                  transform: (brand.id === idBrand) ? "translateY(-4px)" : "none",
+                  transform: brand.id === idBrand ? "translateY(-4px)" : "none",
                   transition: "transform 0.3s ease, box-shadow 0.3s ease",
                   "&:hover": openUpdateTheaterBrand
                     ? {}
@@ -695,7 +703,7 @@ const loadAllTheaters = async () => {
                         boxShadow: "0 12px 30px rgba(25, 118, 210, 0.6)",
                       },
                 }}
-                >
+              >
                 {/* Nút update và delete */}
                 <Box
                   sx={{
@@ -871,10 +879,11 @@ const loadAllTheaters = async () => {
             >
               <Movie sx={{ fontSize: 80, color: "#666", mb: 3 }} />
               <Typography variant="h5" fontWeight="bold" gutterBottom>
-               Không tìm thấy rạp chiếu phim
+                Không tìm thấy rạp chiếu phim
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Vui lòng thử tìm kiếm với từ khóa khác hoặc thêm rạp chiếu phim mới.
+                Vui lòng thử tìm kiếm với từ khóa khác hoặc thêm rạp chiếu phim
+                mới.
               </Typography>
             </Paper>
           </Fade>
@@ -1052,8 +1061,8 @@ const loadAllTheaters = async () => {
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Bạn có chắc chắn muốn xóa rạp chiếu phim "
-              {theaterToDelete?.name}"? Hành động hành không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa rạp chiếu phim "{theaterToDelete?.name}
+              "? Hành động hành không thể hoàn tác.
             </DialogContentText>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>

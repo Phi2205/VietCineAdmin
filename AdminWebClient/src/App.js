@@ -35,6 +35,8 @@ import CastList from './components/CastList';
 import DirectorList from './components/DirectorList';
 import UserBookingList from './components/UserBookingList';
 
+import FullScreenLoader from './components/FullScreenLoader'; 
+import Pagination from './components/Pagination';
 function App() {
   return (
     <AuthProvider>
@@ -74,7 +76,7 @@ function App() {
               <Route path='/foods' element={<FoodList />} />
               <Route path='/vouchers' element={<VoucherList />} />
               <Route path='/priceAdjustments' element={<PriceAdjustment />} />
-              <Route path='/test' element={<FoodForm />} />
+              <Route path='/test' element={<Pagination />} />
               <Route path='/revenue' element={<RevenueForm />} />
               <Route path='/casts' element={<CastList />} />
               <Route path='/directors' element={<DirectorList />} />

@@ -10,6 +10,9 @@ import com.example.DemoAdmin.repository.IDirectorRepository;
 import com.example.DemoAdmin.repository.IGenreRepository;
 import com.example.DemoAdmin.repository.IMovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -131,11 +134,55 @@ public class MovieService implements IMovieService {
         movie.getGenres().clear();
         movieRepository.delete(movie);
     }
+
+    @Override
+    public Page<MovieResponse> getMovieByPage(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Movie> moviePage = movieRepository.findAll(pageable);
+        Page<MovieResponse> responsePage = moviePage.map(movie -> {
+            MovieResponse response = new MovieResponse();
+            response.setId(movie.getId());
+            response.setTitle(movie.getTitle());
+            response.setDescription(movie.getDescription());
+            response.setReleaseDate(movie.getReleaseDate());
+            response.setDuration(movie.getDuration());
+
+            // Truy cập để Hibernate load tránh lỗi proxy
+            Director director = movie.getDirector();
+            if (director != null) {
+                response.setDirectorName(director.getName());
+                response.setDirectorId(director.getId());
+            }
+
+            response.setTrailerUrl(movie.getTrailerUrl());
+            response.setEnglishTitle(movie.getEnglishTitle());
+            response.setIsAvailable(movie.getIsAvailable());
+            response.setPosterUrl(movie.getPosterUrl());
+            response.setRating(movie.getRating());
+
+            // Lấy genre
+            Set<Genre> genres = movie.getGenres(); // hoặc movie.getGenres() nếu ManyToMany
+            if (genres != null) {
+                response.setGenreNames(genres.stream()
+                        .map(Genre::getName)
+                        .collect(Collectors.toSet()));
+                response.setGenreIds(genres.stream()
+                        .map(Genre::getId)
+                        .collect(Collectors.toSet()));
+            }
+
+            return response;
+        });
+        return responsePage;
+    }
+
     private String generateSlug(String title) {
         return title.toLowerCase()
                 .replaceAll("[^a-z0-9\\s]", "") // bỏ ký tự đặc biệt
                 .replaceAll("\\s+", "-")        // khoảng trắng -> dấu -
                 .replaceAll("^-|-$", "");       // bỏ dấu - đầu/cuối
     }
+
+
 
 }

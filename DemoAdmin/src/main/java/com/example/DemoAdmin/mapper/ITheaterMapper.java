@@ -17,6 +17,7 @@ public interface ITheaterMapper {
     @Mapping(target = "address", source = "address")
     @Mapping(target = "city", source = "city")
     @Mapping(target = "totalScreens", source = "totalScreens")
+    @Mapping(target = "theaterBrandId", source = "theaterBrand.theaterBrandId")
     TheaterResponse toTheaterResponse(Theater theater);
     Theater toTheater(TheaterRequest request);
     List<TheaterResponse> toTheaterResponses(List<Theater> theaterList);

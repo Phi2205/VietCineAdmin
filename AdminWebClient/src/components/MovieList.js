@@ -32,6 +32,7 @@ import {
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Pagination from "./Pagination";
 import {
   Add,
   Edit,
@@ -73,7 +74,8 @@ const MovieList = () => {
   const [movieToDelete, setMovieToDelete] = useState(null);
   const [posterDialogOpen, setPosterDialogOpen] = useState(false);
   const [selectedPoster, setSelectedPoster] = useState(null);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   useEffect(() => {
     fetchMovies();
   }, []);
@@ -100,13 +102,20 @@ const MovieList = () => {
     }
   }, [movies, searchTerm]);
 
-  const fetchMovies = () => {
+  useEffect(() => {
+    fetchMovies();
+  }, [currentPage]);
+
+  const fetchMovies =  async () => {
     setLoading(true);
     axios
-      .get("http://localhost:8080/api/admin/movies")
+      .get(`http://localhost:8080/api/admin/movies/page?page=${currentPage-1}&size=1`)
       .then((response) => {
-        setMovies(response.data.data || []);
-        setFilteredMovies(response.data.data || []);
+        setMovies(response.data.content || []);
+        setFilteredMovies(response.data.content || []);
+        console.log(response.data);
+        console.log("CurrentPage: ",currentPage);
+        setTotalPages(response.data.totalPages || 1);
       })
       .catch((error) => {
         toast.error(error.response?.data?.message || "Error fetching movies");
@@ -135,6 +144,13 @@ const MovieList = () => {
         });
     }
   };
+  const handlePageChange = async (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+
 
   const openPosterDialog = (movie) => {
     setSelectedPoster(movie.posterUrl || null);
@@ -721,6 +737,11 @@ const MovieList = () => {
         draggable
         theme="colored"
       />
+      <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
     </Box>
     </ThemeProvider>
   );
