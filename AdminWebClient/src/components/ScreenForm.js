@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { Save, ArrowBack } from "@mui/icons-material";
+import FullScreenLoader from "./FullScreenLoader";
+import { se } from "date-fns/locale";
 
 const ScreenForm = () => {
   const { id } = useParams();
@@ -61,6 +63,7 @@ const ScreenForm = () => {
   };
 
   const handleSubmit = (e) => {
+    setLoading(true);
     e.preventDefault();
     const screenNumber = screen.screenNumber.trim();
     const totalSeats = parseInt(screen.totalSeats, 10);
@@ -92,6 +95,7 @@ const ScreenForm = () => {
         console.error("Error saving screen:", err);
         toast.error(err.response?.data?.message || "Lỗi khi lưu phòng chiếu");
       });
+      setLoading(false);
   };
 
   return (
@@ -108,6 +112,7 @@ const ScreenForm = () => {
           border: "1px solid #7f5af0",
         }}
       >
+        {loading && <FullScreenLoader />}
         <Typography
           variant="h5"
           fontWeight="bold"
@@ -213,7 +218,7 @@ const ScreenForm = () => {
                 }}
               />
 
-              <TextField
+              {/* <TextField
                 label="Số ghế"
                 name="totalSeats"
                 type="number"
@@ -231,7 +236,7 @@ const ScreenForm = () => {
                     "&.Mui-focused fieldset": { borderColor: "#2cb67d" },
                   },
                 }}
-              />
+              /> */}
 
               <Stack
                 direction="row"
