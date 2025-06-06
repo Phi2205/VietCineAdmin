@@ -62,4 +62,12 @@ public class MovieController {
     ){
         return movieService.getMovieByPage(page,size);
     }
+    @GetMapping("/page/title")
+    public Page<MovieResponse> getMoviesByTitle(
+            @RequestParam(defaultValue = "") String title,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return movieService.getMovieByTitle(title,page,size);
+    }
 }

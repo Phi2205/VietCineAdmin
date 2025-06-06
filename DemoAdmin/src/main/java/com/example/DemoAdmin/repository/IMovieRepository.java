@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IMovieRepository extends JpaRepository<Movie, Integer> {
     Page<Movie> findAll(Pageable pageable);
+    Page<Movie> findByTitleContainingIgnoreCase(String title, Pageable pageable);
 }

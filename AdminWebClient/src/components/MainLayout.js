@@ -105,11 +105,11 @@ const MainLayout = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Dashboard
           </Typography>
-          <IconButton color="inherit">
+          {/* <IconButton color="inherit">
             <Badge badgeContent={3} color="error">
               <NotificationsIcon />
             </Badge>
-          </IconButton>
+          </IconButton> */}
           <Typography sx={{ ml: 2 }}>{username || 'No name'}</Typography>
           <Avatar
             sx={{ ml: 1 }}
@@ -220,10 +220,10 @@ const MainLayout = () => {
             <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Doanh thu" />
           </ListItem>
-          <ListItem button onClick={() => handleMenuItemClick('/test')}>
+          {/* <ListItem button onClick={() => handleMenuItemClick('/test')}>
             <ListItemIcon><BarChartIcon sx={{ color: 'white' }} /></ListItemIcon>
             <ListItemText primary="Doanh thu" />
-          </ListItem>
+          </ListItem> */}
         </List>
 
         <Divider sx={{ borderColor: '#34495e' }} />

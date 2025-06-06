@@ -14,4 +14,5 @@ public interface IMovieService {
     List<MovieResponse> getAllMovies();
     void deleteMovie(Integer id);
     Page<MovieResponse> getMovieByPage(Integer page, Integer size);
+    Page<MovieResponse> getMovieByTitle(String title, Integer page, Integer size);
 }

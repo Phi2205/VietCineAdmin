@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import FullScreenLoader from './FullScreenLoader';
 import {
     TextField,
     Button,
@@ -10,13 +11,14 @@ import {
     Paper,
     Stack
 } from '@mui/material';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ShowtimeForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-
+    const [loading, setLoading] = useState(false);
     const [showtime, setShowtime] = useState({
         movieId: '',
         screenId: '',
@@ -154,6 +156,7 @@ const ShowtimeForm = () => {
 
 
     const handleSubmit = (e) => {
+        setLoading(true);
         e.preventDefault();
         if (!isReadyScreen()) {
             return;
@@ -179,12 +182,14 @@ const ShowtimeForm = () => {
                 navigate('/showtimes');
             })
             .catch(err => toast.error(err.response?.data?.message || 'Error saving showtime'));
+        setLoading(false);
     };
 
     const isLoading = loadingMovies || loadingTheaters || loadingShowtime;
 
     return (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            {loading && <FullScreenLoader />}
             <Paper elevation={6} sx={{ p: 4, width: '100%', maxWidth: 600, borderRadius: 3 }}>
                 <Typography variant="h5" fontWeight="bold" gutterBottom textAlign="center">
                     {id ? 'Edit Showtime' : 'Add New Showtime'}
@@ -196,6 +201,7 @@ const ShowtimeForm = () => {
                     </Box>
                 ) : (
                     <form onSubmit={handleSubmit}>
+                        {isLoading && <FullScreenLoader/>}
                         <Stack spacing={2}>
                             <Autocomplete
                                 options={movies}

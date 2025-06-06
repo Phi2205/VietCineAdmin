@@ -176,6 +176,48 @@ public class MovieService implements IMovieService {
         return responsePage;
     }
 
+    @Override
+    public Page<MovieResponse> getMovieByTitle(String title, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Movie> moviePage = movieRepository.findByTitleContainingIgnoreCase(title, pageable);
+        Page<MovieResponse> responsePage = moviePage.map(movie -> {
+            MovieResponse response = new MovieResponse();
+            response.setId(movie.getId());
+            response.setTitle(movie.getTitle());
+            response.setDescription(movie.getDescription());
+            response.setReleaseDate(movie.getReleaseDate());
+            response.setDuration(movie.getDuration());
+
+            // Truy cập để Hibernate load tránh lỗi proxy
+            Director director = movie.getDirector();
+            if (director != null) {
+                response.setDirectorName(director.getName());
+                response.setDirectorId(director.getId());
+            }
+
+            response.setTrailerUrl(movie.getTrailerUrl());
+            response.setEnglishTitle(movie.getEnglishTitle());
+            response.setIsAvailable(movie.getIsAvailable());
+            response.setPosterUrl(movie.getPosterUrl());
+            response.setRating(movie.getRating());
+
+            // Lấy genre
+            Set<Genre> genres = movie.getGenres(); // hoặc movie.getGenres() nếu ManyToMany
+            if (genres != null) {
+                response.setGenreNames(genres.stream()
+                        .map(Genre::getName)
+                        .collect(Collectors.toSet()));
+                response.setGenreIds(genres.stream()
+                        .map(Genre::getId)
+                        .collect(Collectors.toSet()));
+            }
+
+            return response;
+        });
+        return responsePage;
+    }
+
+
     private String generateSlug(String title) {
         return title.toLowerCase()
                 .replaceAll("[^a-z0-9\\s]", "") // bỏ ký tự đặc biệt

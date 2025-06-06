@@ -5,6 +5,7 @@ import { Box, CircularProgress, Typography } from "@mui/material";
 import { toast } from "react-toastify";
 import FoodForm from "./FoodForm";
 import FoodDialog from "./FoodDialog";
+import { se } from "date-fns/locale";
 
 const ModernFoodAdmin = () => {
   const [search, setSearch] = useState("");
@@ -13,6 +14,7 @@ const ModernFoodAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [edittingFood, setEdittingFood] = useState(null);
+  const [filteredItems, setFilteredItems] = useState([]);
 
   useEffect(() => {
     setIsLoaded(false);
@@ -21,6 +23,7 @@ const ModernFoodAdmin = () => {
       try {
         const res = await axios.get("http://localhost:8080/api/admin/foods");
         setFoodItems(res.data);
+        setFilteredItems(res.data);
         setTimeout(() => {
           setIsLoaded(true);
         }, 200);
@@ -48,6 +51,7 @@ const ModernFoodAdmin = () => {
 
       const res = await axios.get("http://localhost:8080/api/admin/foods");
       setFoodItems(res.data);
+      setFilteredItems(res.data);
       setOpen(false);
     } catch (err) {
       toast.error("Lỗi khi thêm món ăn:", err);
@@ -56,6 +60,17 @@ const ModernFoodAdmin = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    let filtered = foodItems;
+    if (search) {
+      console.log("Filtering with search:", search);
+      filtered = foodItems.filter((item) =>
+        item.foodName.toLowerCase().includes(search.toLowerCase())
+      || item.description.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    setFilteredItems(filtered);
+  }, [search, foodItems]);
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm("Bạn có chắc muốn xoá món ăn này?");
@@ -66,6 +81,7 @@ const ModernFoodAdmin = () => {
         await axios.delete(`http://localhost:8080/api/admin/foods/${id}`);
         const res = await axios.get("http://localhost:8080/api/admin/foods");
         setFoodItems(res.data);
+        setFilteredItems(res.data);
         setTimeout(() => {
           setIsLoaded(true);
         }, 200);
@@ -414,7 +430,7 @@ const ModernFoodAdmin = () => {
         </Box>
       ) : (
         <div style={styles.gridContainer}>
-          {foodItems.map((item, index) => (
+          {filteredItems.map((item, index) => (
             <div
               key={item.id}
               style={{
