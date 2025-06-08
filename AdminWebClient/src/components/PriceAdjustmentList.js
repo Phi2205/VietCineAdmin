@@ -116,6 +116,8 @@ const PriceAdjustmentManagement = () => {
     description: "",
     dayOfWeek: "",
     specificDate: null,
+    validFrom: null,
+    until: null,
     priceIncrease: 0,
     isActive: true,
     timeType: "dayOfWeek",
@@ -177,18 +179,6 @@ const PriceAdjustmentManagement = () => {
       .finally(() => setLoading(false))
   }
 
-  const checkAdjustmentActive = (adjustmentId) => {
-    return axios
-      .get(`http://localhost:8080/api/admin/price-adjustments/${adjustmentId}/is-active`)
-      .then((response) => {
-        return response.data
-      })
-      .catch((error) => {
-        toast.error("Lỗi khi kiểm tra trạng thái hoạt động")
-        return false
-      })
-  }
-
   const filterAdjustments = () => {
     let filtered = [...adjustments]
 
@@ -228,6 +218,12 @@ const PriceAdjustmentManagement = () => {
       description: formData.description,
       priceIncrease: Number(formData.priceIncrease),
       isActive: formData.isActive,
+      validFrom: formData.validFrom
+        ? `${formData.validFrom.getFullYear()}-${String(formData.validFrom.getMonth() + 1).padStart(2, "0")}-${String(formData.validFrom.getDate()).padStart(2, "0")}`
+        : null,
+      until: formData.until
+        ? `${formData.until.getFullYear()}-${String(formData.until.getMonth() + 1).padStart(2, "0")}-${String(formData.until.getDate()).padStart(2, "0")}`
+        : null,
       ...(formData.timeType === "dayOfWeek" && {
         dayOfWeek: formData.dayOfWeek ? toEnglishDay(formData.dayOfWeek) : "",
       }),
@@ -259,6 +255,12 @@ const PriceAdjustmentManagement = () => {
       description: formData.description,
       priceIncrease: Number(formData.priceIncrease),
       isActive: formData.isActive,
+      validFrom: formData.validFrom
+        ? `${formData.validFrom.getFullYear()}-${String(formData.validFrom.getMonth() + 1).padStart(2, "0")}-${String(formData.validFrom.getDate()).padStart(2, "0")}`
+        : null,
+      until: formData.until
+        ? `${formData.until.getFullYear()}-${String(formData.until.getMonth() + 1).padStart(2, "0")}-${String(formData.until.getDate()).padStart(2, "0")}`
+        : null,
       ...(formData.timeType === "dayOfWeek" && {
         dayOfWeek: formData.dayOfWeek ? toEnglishDay(formData.dayOfWeek) : "",
       }),
@@ -290,6 +292,8 @@ const PriceAdjustmentManagement = () => {
       description: adjustment.description,
       priceIncrease: adjustment.priceIncrease,
       isActive: !adjustment.isActive,
+      validFrom: adjustment.validFrom,
+      until: adjustment.until,
       ...(adjustment.dayOfWeek && { dayOfWeek: adjustment.dayOfWeek }),
       ...(adjustment.specificDate && { specificDate: adjustment.specificDate }),
     }
@@ -303,7 +307,7 @@ const PriceAdjustmentManagement = () => {
         a.adjustmentId === adjustment.adjustmentId ? response.data : a,
       )
       setAdjustments(updatedAdjustments)
-      filterAdjustments() // Cập nhật filteredAdjustments
+      filterAdjustments()
       toast.success(`Điều chỉnh giá đã được ${!adjustment.isActive ? "kích hoạt" : "vô hiệu hóa"}`)
     } catch (error) {
       console.error("Lỗi khi cập nhật trạng thái:", error.response?.data || error.message)
@@ -311,32 +315,44 @@ const PriceAdjustmentManagement = () => {
     }
   }
 
-  const isExpired = (specificDate, dayOfWeek) => {
+  const isExpired = (specificDate, dayOfWeek, until) => {
     const now = getCurrentTimeUTC7()
+
+    if (until) {
+      const untilDate = new Date(until)
+      const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const adjUntilDate = new Date(untilDate.getFullYear(), untilDate.getMonth(), untilDate.getDate())
+      return adjUntilDate < nowDate
+    }
 
     if (specificDate) {
       const adjustmentDate = new Date(specificDate)
-      // So sánh chỉ ngày, không tính giờ
       const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       const adjDate = new Date(adjustmentDate.getFullYear(), adjustmentDate.getMonth(), adjustmentDate.getDate())
       return adjDate < nowDate
     }
 
-    // Đối với dayOfWeek, không bao giờ hết hạn vì nó lặp lại hàng tuần
     return false
   }
 
-  const shouldDisableEdit = (specificDate, dayOfWeek) => {
+  const shouldDisableEdit = (specificDate, dayOfWeek, validFrom, until) => {
     const now = getCurrentTimeUTC7()
 
+    if (validFrom && until) {
+      const fromDate = new Date(validFrom)
+      const untilDate = new Date(until)
+      const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const adjFromDate = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate())
+      const adjUntilDate = new Date(untilDate.getFullYear(), untilDate.getMonth(), untilDate.getDate())
+      return nowDate >= adjFromDate && nowDate <= adjUntilDate
+    }
+
     if (specificDate) {
-      // Nếu là ngày cụ thể và đã đến hoặc qua ngày đó
       const adjustmentDate = new Date(specificDate)
       const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       const adjDate = new Date(adjustmentDate.getFullYear(), adjustmentDate.getMonth(), adjustmentDate.getDate())
       return adjDate <= nowDate
     } else if (dayOfWeek) {
-      // Nếu là ngày trong tuần và đang là ngày đó
       const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
       const today = dayNames[now.getDay()]
       return dayOfWeek === today
@@ -347,9 +363,7 @@ const PriceAdjustmentManagement = () => {
 
   const openEditDialog = async (adjustment) => {
     setCurrentAdjustment(adjustment)
-
-    // Sử dụng logic local thay vì gọi API
-    const isActive = shouldDisableEdit(adjustment.specificDate, adjustment.dayOfWeek)
+    const isActive = shouldDisableEdit(adjustment.specificDate, adjustment.dayOfWeek, adjustment.validFrom, adjustment.until)
     setIsAdjustmentActive(isActive)
 
     setFormData({
@@ -357,6 +371,8 @@ const PriceAdjustmentManagement = () => {
       description: adjustment.description,
       dayOfWeek: adjustment.dayOfWeek ? toVietnameseDay(adjustment.dayOfWeek) : "",
       specificDate: adjustment.specificDate ? new Date(adjustment.specificDate) : null,
+      validFrom: adjustment.validFrom ? new Date(adjustment.validFrom) : null,
+      until: adjustment.until ? new Date(adjustment.until) : null,
       priceIncrease: adjustment.priceIncrease,
       isActive: adjustment.isActive,
       timeType: adjustment.specificDate ? "specificDate" : "dayOfWeek",
@@ -371,6 +387,8 @@ const PriceAdjustmentManagement = () => {
       description: "",
       dayOfWeek: "",
       specificDate: null,
+      validFrom: null,
+      until: null,
       priceIncrease: 0,
       isActive: true,
       timeType: "dayOfWeek",
@@ -389,7 +407,7 @@ const PriceAdjustmentManagement = () => {
     setFormData({
       ...formData,
       [name]: date,
-      dayOfWeek: "",
+      ...(name === "specificDate" ? { dayOfWeek: "" } : {}),
     })
   }
 
@@ -402,14 +420,22 @@ const PriceAdjustmentManagement = () => {
     }))
   }
 
-  const isActiveToday = (specificDate, dayOfWeek) => {
+  const isActiveToday = (specificDate, dayOfWeek, validFrom, until) => {
     const now = getCurrentTimeUTC7()
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     const today = dayNames[now.getDay()]
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+    if (validFrom && until) {
+      const fromDate = new Date(validFrom)
+      const untilDate = new Date(until)
+      const adjFromDate = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate())
+      const adjUntilDate = new Date(untilDate.getFullYear(), untilDate.getMonth(), untilDate.getDate())
+      return nowDate >= adjFromDate && nowDate <= adjUntilDate
+    }
 
     if (specificDate) {
       const adjustmentDate = new Date(specificDate)
-      const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
       const adjDate = new Date(adjustmentDate.getFullYear(), adjustmentDate.getMonth(), adjustmentDate.getDate())
       return adjDate.getTime() === nowDate.getTime()
     } else if (dayOfWeek) {
@@ -419,7 +445,7 @@ const PriceAdjustmentManagement = () => {
   }
 
   const activeAdjustments = adjustments.filter((a) => a.isActive).length
-  const expiredAdjustments = adjustments.filter((a) => isExpired(a.specificDate, a.dayOfWeek)).length
+  const expiredAdjustments = adjustments.filter((a) => isExpired(a.specificDate, a.dayOfWeek, a.until)).length
 
   const getGradientColor = (priceIncrease) => {
     if (Math.abs(priceIncrease) >= 50000) {
@@ -440,7 +466,6 @@ const PriceAdjustmentManagement = () => {
     })
   }
 
-  // Format price for display in avatar (show as "k" format)
   const formatPriceForAvatar = (priceIncrease) => {
     const absValue = Math.abs(priceIncrease)
     if (absValue >= 1000) {
@@ -746,8 +771,9 @@ const PriceAdjustmentManagement = () => {
                       Tăng/Giảm Giá
                     </TableCell>
                     <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "15%" }}>Loại Ghế</TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "15%" }}>Thời Gian</TableCell>
-                    <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "35%" }}>Mô Tả</TableCell>
+                    <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "20%" }}>Thời Gian</TableCell>
+                    <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "20%" }}>Hiệu Lực</TableCell>
+                    <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "25%" }}>Mô Tả</TableCell>
                     <TableCell sx={{ fontWeight: "bold", fontSize: "1rem", width: "15%" }}>Trạng Thái</TableCell>
                     <TableCell align="center" sx={{ fontWeight: "bold", fontSize: "1rem", width: "10%" }}>
                       Thao Tác
@@ -758,9 +784,9 @@ const PriceAdjustmentManagement = () => {
                   {filteredAdjustments.map((adjustment) => {
                     const seatType = seatTypes.find((st) => st.id === adjustment.seatTypeId)
                     const seatTypeName = seatType ? seatType.name : "Không xác định"
-                    const isActive = isActiveToday(adjustment.specificDate, adjustment.dayOfWeek)
-                    const isExpiredStatus = isExpired(adjustment.specificDate, adjustment.dayOfWeek)
-                    const shouldDisable = shouldDisableEdit(adjustment.specificDate, adjustment.dayOfWeek)
+                    const isActive = isActiveToday(adjustment.specificDate, adjustment.dayOfWeek, adjustment.validFrom, adjustment.until)
+                    const isExpiredStatus = isExpired(adjustment.specificDate, adjustment.dayOfWeek, adjustment.until)
+                    const shouldDisable = shouldDisableEdit(adjustment.specificDate, adjustment.dayOfWeek, adjustment.validFrom, adjustment.until)
                     const displayAmount = Math.abs(adjustment.priceIncrease)
                     const isDecrease = adjustment.priceIncrease < 0
 
@@ -855,6 +881,16 @@ const PriceAdjustmentManagement = () => {
                           </Stack>
                         </TableCell>
                         <TableCell>
+                          <Stack spacing={0.5}>
+                            {adjustment.validFrom && (
+                              <Typography variant="body2">Từ: {formatDate(adjustment.validFrom)}</Typography>
+                            )}
+                            {adjustment.until && (
+                              <Typography variant="body2">Đến: {formatDate(adjustment.until)}</Typography>
+                            )}
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
                           <Typography variant="body2">{adjustment.description || "Không có mô tả"}</Typography>
                         </TableCell>
                         <TableCell>
@@ -930,6 +966,24 @@ const PriceAdjustmentManagement = () => {
                     ))}
                   </Select>
                 </FormControl>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Hiệu lực từ"
+                    value={formData.validFrom}
+                    onChange={(date) => handleDateChange("validFrom", date)}
+                    renderInput={(params) => <TextField {...params} fullWidth sx={{ mb: 3 }} />}
+                    sx={{ width: "100%", mb: 3 }}
+                  />
+                </LocalizationProvider>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Hiệu lực đến"
+                    value={formData.until}
+                    onChange={(date) => handleDateChange("until", date)}
+                    renderInput={(params) => <TextField {...params} fullWidth sx={{ mb: 3 }} />}
+                    sx={{ width: "100%", mb: 3 }}
+                  />
+                </LocalizationProvider>
                 <FormControl component="fieldset" sx={{ mb: 3 }}>
                   <Typography variant="subtitle1" sx={{ mb: 1 }}>
                     Chọn loại thời gian
@@ -1028,7 +1082,9 @@ const PriceAdjustmentManagement = () => {
                   >
                     <Info sx={{ color: "#ff5252", mr: 1 }} />
                     <Typography variant="body2" color="#ff5252">
-                      {currentAdjustment?.specificDate
+                      {currentAdjustment?.validFrom && currentAdjustment?.until
+                        ? "Điều chỉnh giá này đang trong khoảng thời gian hiệu lực, chỉ có thể chỉnh sửa trạng thái"
+                        : currentAdjustment?.specificDate
                         ? "Điều chỉnh giá này đã đến hoặc quá ngày áp dụng, chỉ có thể chỉnh sửa trạng thái"
                         : "Điều chỉnh giá này đang được áp dụng hôm nay, chỉ có thể chỉnh sửa trạng thái"}
                     </Typography>
@@ -1061,6 +1117,26 @@ const PriceAdjustmentManagement = () => {
                     ))}
                   </Select>
                 </FormControl>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Hiệu lực từ"
+                    value={formData.validFrom}
+                    onChange={(date) => handleDateChange("validFrom", date)}
+                    renderInput={(params) => <TextField {...params} fullWidth sx={{ mb: 3 }} />}
+                    sx={{ width: "100%", mb: 3 }}
+                    disabled={isAdjustmentActive}
+                  />
+                </LocalizationProvider>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Hiệu lực đến"
+                    value={formData.until}
+                    onChange={(date) => handleDateChange("until", date)}
+                    renderInput={(params) => <TextField {...params} fullWidth sx={{ mb: 3 }} />}
+                    sx={{ width: "100%", mb: 3 }}
+                    disabled={isAdjustmentActive}
+                  />
+                </LocalizationProvider>
                 <FormControl component="fieldset" sx={{ mb: 3 }}>
                   <Typography variant="subtitle1" sx={{ mb: 1 }}>
                     Chọn loại thời gian

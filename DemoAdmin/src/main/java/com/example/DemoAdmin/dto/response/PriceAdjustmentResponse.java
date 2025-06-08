@@ -19,4 +19,6 @@ public class PriceAdjustmentResponse {
     private Date specificDate;
     private Integer priceIncrease;
     private Boolean isActive;
+    private Date validFrom;
+    private Date Until;
 }

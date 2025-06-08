@@ -40,4 +40,10 @@ public class PriceAdjustment {
     @ManyToOne
     @JoinColumn(name = "SeatTypeId", insertable = false, updatable = false)
     private SeatType seatType;
+
+    @Column(name = "ValidFrom", nullable = true)
+    private Date validFrom;
+
+    @Column(name = "Until", nullable = true)
+    private Date until;
 }

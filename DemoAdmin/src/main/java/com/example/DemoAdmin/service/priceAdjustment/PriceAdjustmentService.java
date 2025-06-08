@@ -45,6 +45,13 @@ public class PriceAdjustmentService implements IPriceAdjustmentService {
             throw new RuntimeException("DayOfWeek phải là một trong: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.");
         }
 
+        // Validate validFrom and until dates
+        if (request.getValidFrom() != null && request.getUntil() != null) {
+            if (request.getValidFrom().after(request.getUntil())) {
+                throw new RuntimeException("Ngày bắt đầu (validFrom) phải trước ngày kết thúc (until).");
+            }
+        }
+
         SeatType seatType = seatTypeRepository.findById(request.getSeatTypeId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy SeatType với id: " + request.getSeatTypeId()));
 
@@ -94,6 +101,8 @@ public class PriceAdjustmentService implements IPriceAdjustmentService {
         priceAdjustment.setSeatTypeId(request.getSeatTypeId());
         priceAdjustment.setSpecificDate(normalizedSpecificDate); // Sử dụng giá trị đã chuẩn hóa
         priceAdjustment.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
+        if (request.getValidFrom() != null) priceAdjustment.setValidFrom(request.getValidFrom());
+        if (request.getUntil() != null) priceAdjustment.setUntil(request.getUntil());
 
         PriceAdjustment savedAdjustment = priceAdjustmentRepository.save(priceAdjustment);
         return priceAdjustmentMapper.toPriceAdjustmentResponse(savedAdjustment);
@@ -113,6 +122,13 @@ public class PriceAdjustmentService implements IPriceAdjustmentService {
         }
         if (request.getDayOfWeek() != null && !VALID_DAYS_OF_WEEK.contains(request.getDayOfWeek())) {
             throw new RuntimeException("DayOfWeek phải là một trong: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.");
+        }
+
+        // Validate validFrom and until dates
+        if (request.getValidFrom() != null && request.getUntil() != null) {
+            if (request.getValidFrom().after(request.getUntil())) {
+                throw new RuntimeException("Ngày bắt đầu (validFrom) phải trước ngày kết thúc (until).");
+            }
         }
 
         // Lấy ngày hiện tại từ hệ thống
@@ -177,6 +193,8 @@ public class PriceAdjustmentService implements IPriceAdjustmentService {
                 priceAdjustment.setSpecificDate(normalizedSpecificDate);
                 priceAdjustment.setPriceIncrease(request.getPriceIncrease() != null ? request.getPriceIncrease() : priceAdjustment.getPriceIncrease());
                 priceAdjustment.setIsActive(request.getIsActive() != null ? request.getIsActive() : priceAdjustment.getIsActive());
+                priceAdjustment.setValidFrom(request.getValidFrom() != null ? request.getValidFrom() : priceAdjustment.getValidFrom());
+                priceAdjustment.setUntil(request.getUntil() != null ? request.getUntil() : priceAdjustment.getUntil());
             }
         } else {
             // Nếu không có specificDate, cho phép cập nhật tất cả
@@ -186,6 +204,8 @@ public class PriceAdjustmentService implements IPriceAdjustmentService {
             priceAdjustment.setSpecificDate(normalizedSpecificDate);
             priceAdjustment.setPriceIncrease(request.getPriceIncrease() != null ? request.getPriceIncrease() : priceAdjustment.getPriceIncrease());
             priceAdjustment.setIsActive(request.getIsActive() != null ? request.getIsActive() : priceAdjustment.getIsActive());
+            if (request.getValidFrom() != null) priceAdjustment.setValidFrom(priceAdjustment.getValidFrom());
+            if (request.getUntil() != null) priceAdjustment.setUntil(priceAdjustment.getUntil());
         }
 
         PriceAdjustment updatedAdjustment = priceAdjustmentRepository.save(priceAdjustment);

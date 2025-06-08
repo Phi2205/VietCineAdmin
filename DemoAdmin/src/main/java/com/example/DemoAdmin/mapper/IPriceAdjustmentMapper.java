@@ -15,6 +15,8 @@ public interface IPriceAdjustmentMapper {
     @Mapping(target = "specificDate", source = "specificDate")
     @Mapping(target = "priceIncrease", source = "priceIncrease")
     @Mapping(target = "isActive", source = "isActive")
+    @Mapping(target = "validFrom", source = "validFrom")
+    @Mapping(target = "until", source = "until")
     PriceAdjustmentResponse toPriceAdjustmentResponse(PriceAdjustment priceAdjustment);
 
     @Mapping(target = "adjustmentId", ignore = true)
